@@ -40,9 +40,15 @@ class WishlistController extends Controller
 
     public function destroy($id, Request $request)
     {
-        $wishlist = Wishlist::where('id', $id)
-            ->where('user_id', $request->user()->id)
-            ->first();
+        $query = Wishlist::where('user_id', $request->user()->id);
+        
+        if ($request->has('type')) {
+            $query->where('item_id', $id)->where('item_type', $request->query('type'));
+        } else {
+            $query->where('id', $id);
+        }
+
+        $wishlist = $query->first();
 
         if (!$wishlist) {
             return response()->json(['message' => 'Item not found'], 404);

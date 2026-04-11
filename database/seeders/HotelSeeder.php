@@ -43,6 +43,12 @@ class HotelSeeder extends Seeder
             ],
             'Fayoum' => [
                 'Lazib Inn Resort & Spa', 'Byoum Lakeside Hotel', 'Helnan Auberge Fayoum', 'Tunis Village Resort', 'Tzila Lodge', 'Zad Al Mosafer Guest House'
+            ],
+            'Marsa Alam' => [
+                'Jaz Lamaya Resort', 'Steigenberger Coraya Beach', 'Hilton Marsa Alam Nubian Resort', 'The Three Corners Fayrouz Plaza', 'Aurora Bay Resort', 'Gorgonia Beach Resort'
+            ],
+            'Dahab' => [
+                'Le Meridien Dahab Resort', 'Swiss Inn Resort Dahab', 'Tropitel Dahab Oasis', 'Jaz Dahabeya', 'Tirana Dahab Resort', 'Acacia Dahab Hotel'
             ]
         ];
 
@@ -137,6 +143,22 @@ class HotelSeeder extends Seeder
             'Tunis Village Resort' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTQnyej2smTL2Y5G8TVISGMJB8i9n_KTLxQg&s',
             'Tzila Lodge' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjY0_Pkhc1nwbQuTaiRML5vKXrYRqRiPjQbg&s',
             'Zad Al Mosafer Guest House' => 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/409193308.jpg?k=1310c0befefdad26c908e1cc8b3e31ce3ec64aa4693e3ca5dade3bb428d6264d&o=',
+            
+            // Marsa Alam
+            'Jaz Lamaya Resort' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/33/f1/44/jaz-lamaya-resort.jpg?w=900&h=-1&s=1',
+            'Steigenberger Coraya Beach' => 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/38289886.jpg?k=3cc9b1fa3f381fcc8f8ab64d6db38ad269661cd81881dc1c25eed49683fb080f&o=',
+            'Hilton Marsa Alam Nubian Resort' => 'https://www.hilton.com/im/en/RMFHIHI/14681699/exterior-1522.jpg?impolicy=crop&cw=5760&ch=3230&gravity=NorthWest&xposition=0&yposition=304&rw=768&rh=430',
+            'The Three Corners Fayrouz Plaza' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/e3/fc/d8/swimming-pool.jpg?w=900&h=-1&s=1',
+            'Aurora Bay Resort' => 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/27563583.jpg?k=a39fa2ec1e7371d3d633c706ee9a4f4ed7db0dbceb51dbab5e9d91bd2c9b4e3e&o=',
+            'Gorgonia Beach Resort' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/89/3b/b1/gorgonia-beach-resort.jpg?w=900&h=-1&s=1',
+
+            // Dahab
+            'Le Meridien Dahab Resort' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/37/8a/16/le-meridien-dahab-resort.jpg?w=900&h=-1&s=1',
+            'Swiss Inn Resort Dahab' => 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/193856860.jpg?k=41f6ca197d1fb7da55877c489abed66bf9b20d36cae8d1a3b11e2f9d863b15ad&o=',
+            'Tropitel Dahab Oasis' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/23/e8/8b/5f/caption.jpg?w=900&h=-1&s=1',
+            'Jaz Dahabeya' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/3a/0b/ba/jaz-dahabeya.jpg?w=900&h=-1&s=1',
+            'Tirana Dahab Resort' => 'https://cf.bstatic.com/xdata/images/hotel/max1024x768/212959828.jpg?k=80509a2be7ed45778a4b4946bcff7fbac81f13b631d8e1c6b54199fcb605af5b&o=',
+            'Acacia Dahab Hotel' => 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0e/af/82/ef/acacia-dahab-hotel.jpg?w=900&h=-1&s=1',
         ];
 
         foreach ($locations as $city => $hotels) {

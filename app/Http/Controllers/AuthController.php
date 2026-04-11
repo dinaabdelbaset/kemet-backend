@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -98,18 +101,112 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Step 1: Send OTP to email
+     */
     public function forgotPassword(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
         ]);
 
-        // ملاحظة أمنية للدكتور: في الأنظمة الحقيقية لا نُخبر المستخدم إذا كان الإيميل غير موجود
-        // لمنع الـ Email Enumeration Attacks (هجمات تخمين الإيميلات).
-        // لذا نعيد رسالة نجاح دائماً إذا كان صيغة الإيميل صحيحة.
+        $user = User::where('email', $request->email)->first();
+
+        // Security best practice: Don't reveal if user exists or not, but for this process we will log/store it if they do.
+        if ($user) {
+            $otp = rand(100000, 999999);
+
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $request->email],
+                [
+                    'token' => Hash::make($otp),
+                    'created_at' => Carbon::now()
+                ]
+            );
+
+            try {
+                Mail::raw("Your Kemet password reset code is: {$otp}\nThis code will expire in 15 minutes.", function ($message) use ($request) {
+                    $message->to($request->email)
+                            ->subject('Password Reset OTP - Kemet');
+                });
+            } catch (\Exception $e) {
+                // If SMTP is not properly configured, log the OTP for development fallback.
+                \Log::error("Failed to send OTP to {$request->email}. Error: " . $e->getMessage());
+                \Log::info("DEVELOPMENT FALLBACK: OTP for {$request->email} is {$otp}");
+                
+                // For demonstration purpose during development without actual SMTP credentials:
+                // We're returning the OTP in the message (REMOVE IN PRODUCTION)
+                // return response()->json(['message' => 'Failed to send email. Ensure SMTP is configured. (Dev OTP: '.$otp.')'], 500);
+            }
+        }
 
         return response()->json([
-            'message' => 'لقد أرسلنا تعليمات استعادة كلمة المرور إلى بريدك الإلكتروني.'
+            'message' => 'If this email is registered, we have sent a 6-digit OTP code.'
+        ]);
+    }
+
+    /**
+     * Step 2: Verify OTP
+     */
+    public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|numeric|digits:6',
+        ]);
+
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$resetRecord || !Hash::check($request->otp, $resetRecord->token)) {
+            throw ValidationException::withMessages([
+                'otp' => ['رمز التحقق غير صحيح أو منتهي الصلاحية.'],
+            ]);
+        }
+
+        // Check expiration (15 minutes)
+        if (Carbon::parse($resetRecord->created_at)->addMinutes(15)->isPast()) {
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            throw ValidationException::withMessages([
+                'otp' => ['انتهت صلاحية رمز التحقق، يرجى طلب رمز جديد.'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'تم التحقق من الرمز بنجاح، يمكنك الآن تعيين كلمة المرور الجديدة.',
+            'valid' => true
+        ]);
+    }
+
+    /**
+     * Step 3: Reset Password
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'otp'      => 'required|numeric|digits:6',
+            'password' => 'required|string|min:6|confirmed', // expects password_confirmation field in request
+        ]);
+
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$resetRecord || !Hash::check($request->otp, $resetRecord->token)) {
+            throw ValidationException::withMessages([
+                'otp' => ['رمز التحقق غير صحيح.'],
+            ]);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            $user->password = Hash::make($request->password);
+            $user->save();
+        }
+
+        // Delete the token so it can't be used again
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json([
+            'message' => 'تم تغيير كلمة المرور بنجاح، يمكنك الآن تسجيل الدخول.'
         ]);
     }
     public function updateProfile(Request $request)

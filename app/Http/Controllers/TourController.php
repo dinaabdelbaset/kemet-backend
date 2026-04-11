@@ -20,9 +20,9 @@ class TourController extends Controller
             $toursList->transform(function ($item) {
                 if ($item->image && !str_starts_with($item->image, 'http')) {
                     if (($pos = strpos($item->image, 'images/')) !== false) {
-                        $item->image = url(substr($item->image, $pos));
+                        $item->image = '/' . substr($item->image, $pos);
                     } elseif (($pos = strpos($item->image, '/images/')) !== false) {
-                        $item->image = url(substr($item->image, $pos + 1));
+                        $item->image = substr($item->image, $pos);
                     }
                 }
                 return $item;

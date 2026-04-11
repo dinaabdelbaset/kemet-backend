@@ -37,7 +37,7 @@ class EventController extends Controller
                 'time' => '7:30 PM',
                 'price' => 350,
                 'category' => 'Show',
-                'image' => url('/api/kamet-images/pyramids'),
+                'image' => '/images/events/pyramids-sound-light.jpg',
                 'rating' => 4.8,
             ],
             [
@@ -49,7 +49,7 @@ class EventController extends Controller
                 'time' => '8:00 PM',
                 'price' => 0,
                 'category' => 'Cultural',
-                'image' => url('/api/kamet-images/dervishes'),
+                'image' => '/images/events/whirling-dervishes.jpg',
                 'rating' => 4.9,
             ],
             [
@@ -61,7 +61,7 @@ class EventController extends Controller
                 'time' => '6:00 PM',
                 'price' => 500,
                 'category' => 'Music',
-                'image' => url('/api/kamet-images/jazz'),
+                'image' => '/images/events/cairo-jazz-festival.jpg',
                 'rating' => 4.7,
             ],
             [
@@ -73,7 +73,7 @@ class EventController extends Controller
                 'time' => '8:00 PM',
                 'price' => 1200,
                 'category' => 'Opera',
-                'image' => url('/api/kamet-images/opera'),
+                'image' => '/images/events/opera-aida.jpg',
                 'rating' => 4.9,
             ],
             [
@@ -85,7 +85,7 @@ class EventController extends Controller
                 'time' => '9:00 PM',
                 'price' => 800,
                 'category' => 'Music',
-                'image' => url('/api/kamet-images/edm'),
+                'image' => '/images/events/red-sea-edm.jpg',
                 'rating' => 4.5,
             ],
             [
@@ -97,7 +97,7 @@ class EventController extends Controller
                 'time' => '10:00 AM',
                 'price' => 50,
                 'category' => 'Cultural',
-                'image' => url('/api/kamet-images/book'),
+                'image' => '/images/events/cairo-book-fair.jpg',
                 'rating' => 4.3,
             ],
         ];

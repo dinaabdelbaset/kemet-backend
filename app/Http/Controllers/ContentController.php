@@ -65,10 +65,10 @@ class ContentController extends Controller
     public function getWhyChooseUs()
     {
         return response()->json([
-            ['id' => 1, 'src' => 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=100&h=100&fit=crop', 'alt' => 'WhyUs1', 'title' => 'Ultimate flexibility', 'description' => "You're in control, with free cancellation and payment options to satisfy any plan or budget."],
-            ['id' => 2, 'src' => 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=100&h=100&fit=crop', 'alt' => 'WhyUs2', 'title' => 'Memorable experiences', 'description' => "Browse and book tours and activities so incredible, you'll want to tell your friends."],
-            ['id' => 3, 'src' => 'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=100&h=100&fit=crop', 'alt' => 'WhyUs3', 'title' => 'Quality at our core', 'description' => 'High-quality standards. Millions of reviews. A tourz company.'],
-            ['id' => 4, 'src' => 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=100&h=100&fit=crop', 'alt' => 'WhyUs4', 'title' => 'Award-winning support', 'description' => "New price? New plan? No problem. We're here to help, 24/7."],
+            ['id' => 1, 'src' => '/images/home/why-flex.jpg', 'alt' => 'WhyUs1', 'title' => 'Ultimate flexibility', 'description' => "You're in control, with free cancellation and payment options to satisfy any plan or budget."],
+            ['id' => 2, 'src' => '/images/home/why-memorable.jpg', 'alt' => 'WhyUs2', 'title' => 'Memorable experiences', 'description' => "Browse and book tours and activities so incredible, you'll want to tell your friends."],
+            ['id' => 3, 'src' => '/images/home/why-quality.jpg', 'alt' => 'WhyUs3', 'title' => 'Quality at our core', 'description' => 'High-quality standards. Millions of reviews. A tourz company.'],
+            ['id' => 4, 'src' => '/images/home/why-support.jpg', 'alt' => 'WhyUs4', 'title' => 'Award-winning support', 'description' => "New price? New plan? No problem. We're here to help, 24/7."],
         ]);
     }
 
@@ -122,7 +122,7 @@ class ContentController extends Controller
                 'rating' => 4.9, 'reviews' => 48320,
                 'description' => 'أحد عجائب الدنيا السبع — الهرم الأكبر وأبو الهول يقفان شامخَين منذ أكثر من 4500 عام',
                 'longDescription' => 'الأهرامات الثلاثة الكبرى (خوفو وخفرع ومنقرع) وأبو الهول العظيم تُشكّل واحدة من أعظم الإنجازات البشرية على مر التاريخ. بُنيت كمقابر ملكية لفراعنة الأسرة الرابعة، ولا تزال تمثل رمزًا لحكمة وقوة الحضارة المصرية القديمة.',
-                'image' => 'https://images.unsplash.com/photo-1539768942893-daf53e448371?w=1600&q=90',
+                'image' => '/images/home/dest-giza.jpg',
                 'gallery' => ['https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=800&q=80','https://images.unsplash.com/photo-1590150284286-5d5b26a5c3f7?w=800&q=80','https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=800&q=80'],
                 'ticketPrices' => [
                     ['type' => 'مصري', 'price' => 40, 'currency' => 'EGP', 'desc' => 'دخول الحرم والمنطقة الأثرية'],
@@ -142,7 +142,7 @@ class ContentController extends Controller
                 'rating' => 4.9, 'reviews' => 21500,
                 'description' => 'المعبد العظيم لرمسيس الثاني — نُقل بالكامل حجرًا حجرًا لإنقاذه من مياه بحيرة ناصر',
                 'longDescription' => 'نُحت معبدا أبو سمبل في الصخر الحي إبان حكم رمسيس الثاني الذي دام 66 عامًا في القرن الثالث عشر قبل الميلاد.',
-                'image' => 'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=1600&q=90',
+                'image' => '/images/home/dest-abusimbel.jpg',
                 'gallery' => ['https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=800&q=80'],
                 'ticketPrices' => [
                     ['type' => 'مصري', 'price' => 30, 'currency' => 'EGP', 'desc' => 'دخول المعبدين'],
@@ -161,7 +161,7 @@ class ContentController extends Controller
                 'rating' => 4.8, 'reviews' => 34200,
                 'description' => 'مقبرة أسرار الفراعنة — أكثر من 63 مقبرة ملكية محفورة في قلب الجبل',
                 'longDescription' => 'وادي الملوك هو المنطقة الأثرية التي دُفن فيها ملوك وأمراء مصر القديمة خلال عهد الدولة الحديثة.',
-                'image' => 'https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=1600&q=90',
+                'image' => '/images/home/dest-valley.jpg',
                 'gallery' => ['https://images.unsplash.com/photo-1553913861-c0fddf2619ee?w=800&q=80'],
                 'ticketPrices' => [
                     ['type' => 'مصري', 'price' => 30, 'currency' => 'EGP', 'desc' => 'دخول 3 مقابر مشمولة'],
@@ -180,7 +180,7 @@ class ContentController extends Controller
                 'rating' => 4.7, 'reviews' => 29800,
                 'description' => 'درة البحر المتوسط — مدينة الإسكندر الأكبر حيث قامت أعظم مكتبة في التاريخ القديم',
                 'longDescription' => 'أسسها الإسكندر الأكبر عام 331 قبل الميلاد لتكون عاصمة مملكته.',
-                'image' => 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1600&q=90',
+                'image' => '/images/home/dest-alex.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'مكتبة الإسكندرية - مصري', 'price' => 10, 'currency' => 'EGP', 'desc' => 'دخول المكتبة والمتاحف'],
@@ -198,7 +198,7 @@ class ContentController extends Controller
                 'rating' => 4.7, 'reviews' => 15600,
                 'description' => 'أقدم أحياء مصر — حيث ترقد كنيسة المعلقة ودير أبو سرجة وكنس بن عزرا',
                 'longDescription' => 'الحي القبطي بالقاهرة القديمة يضم أقدم الكنائس المسيحية في العالم.',
-                'image' => 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=1600&q=90',
+                'image' => '/images/home/dest-coptic.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'دخل المنطقة', 'price' => 0, 'currency' => 'EGP', 'desc' => 'الدخول مجاني'],
@@ -216,7 +216,7 @@ class ContentController extends Controller
                 'rating' => 4.9, 'reviews' => 18300,
                 'description' => 'أقدم دير مسيحي في العالم لا يزال قائمًا — يرقد عند سفح جبل موسى',
                 'longDescription' => 'بُني الدير في القرن السادس الميلادي بأمر من الإمبراطور جستنيان.',
-                'image' => 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1600&q=90',
+                'image' => '/images/home/dest-catherine.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'دخل الدير', 'price' => 0, 'currency' => 'USD', 'desc' => 'الدخول مجاني'],
@@ -233,7 +233,7 @@ class ContentController extends Controller
                 'rating' => 4.8, 'reviews' => 22100,
                 'description' => 'أقدم جامعة في العالم — أُسس عام 970 م',
                 'longDescription' => 'أسّسه جوهر الصقلي قائد الجيش الفاطمي عام 971 م.',
-                'image' => 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1600&q=90',
+                'image' => '/images/home/dest-azhar.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'دخل المسجد', 'price' => 0, 'currency' => 'EGP', 'desc' => 'الدخول مجاني'],
@@ -250,7 +250,7 @@ class ContentController extends Controller
                 'rating' => 4.7, 'reviews' => 31200,
                 'description' => 'حصن صلاح الدين الأيوبي الشامخ',
                 'longDescription' => 'بدأ بناء القلعة صلاح الدين الأيوبي عام 1176 م.',
-                'image' => 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1600&q=90',
+                'image' => '/images/home/dest-citadel.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'مصري', 'price' => 20, 'currency' => 'EGP', 'desc' => 'دخول القلعة والمتاحف'],
@@ -268,7 +268,7 @@ class ContentController extends Controller
                 'rating' => 4.8, 'reviews' => 56400,
                 'description' => 'أحد أجمل بحار العالم — شعاب مرجانية بألوان لا توصف',
                 'longDescription' => 'يُعدّ البحر الأحمر موطنًا لبعض أغنى النظم البيئية البحرية في العالم.',
-                'image' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=90',
+                'image' => '/images/home/dest-redsea.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'رحلة سنوركل نصف يوم', 'price' => 25, 'currency' => 'USD', 'desc' => 'تشمل المعدات والمرشد'],
@@ -286,7 +286,7 @@ class ContentController extends Controller
                 'rating' => 4.6, 'reviews' => 19800,
                 'description' => 'شواطئ بمياه فيروزية تنافس جزر البحر الأبيض',
                 'longDescription' => 'يمتد الساحل الشمالي لمصر على مسافة 1000 كيلومتر.',
-                'image' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=90',
+                'image' => '/images/home/dest-northcoast.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'دخول المنتجع', 'price' => 30, 'currency' => 'USD', 'desc' => 'يشمل المظلة والكرسي'],
@@ -303,7 +303,7 @@ class ContentController extends Controller
                 'rating' => 4.5, 'reviews' => 8900,
                 'description' => 'المدينة التي تُبنى الآن — مشروع القرن المصري',
                 'longDescription' => 'العاصمة الإدارية الجديدة هي مدينة عملاقة تُنشأ شرق القاهرة.',
-                'image' => 'https://images.unsplash.com/photo-1600868205423-1c3906a4b162?w=1600&q=90',
+                'image' => '/images/home/dest-newcapital.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'جولة سياحية منظمة', 'price' => 20, 'currency' => 'USD', 'desc' => 'جولة بالحافلة مع مرشد'],
@@ -320,7 +320,7 @@ class ContentController extends Controller
                 'rating' => 4.8, 'reviews' => 12400,
                 'description' => 'سيدة كنائس مصر — معلّقة فوق برجَيْن رومانيَّين',
                 'longDescription' => 'كنيسة السيدة العذراء المعلقة بُنيت فوق بوابة قصر بابليون الجنوبية.',
-                'image' => 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=1600&q=90',
+                'image' => '/images/home/dest-hanging.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'دخل الكنيسة', 'price' => 0, 'currency' => 'EGP', 'desc' => 'الدخول مجاني'],
@@ -336,7 +336,7 @@ class ContentController extends Controller
                 'rating' => 4.5, 'reviews' => 9800,
                 'description' => 'المسرح الروماني الوحيد في مصر',
                 'longDescription' => 'اكتُشف بالصدفة عام 1960.',
-                'image' => 'https://images.unsplash.com/photo-1572252009286-268acec5ca0a?w=1600&q=90',
+                'image' => '/images/home/dest-kom.jpg',
                 'gallery' => [],
                 'ticketPrices' => [
                     ['type' => 'مصري', 'price' => 10, 'currency' => 'EGP', 'desc' => 'دخول الموقع'],

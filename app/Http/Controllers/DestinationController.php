@@ -9,7 +9,43 @@ class DestinationController extends Controller
     public function index(Request $request)
     {
         $destinations = \App\Models\Destination::all()->map(function ($dest) {
-            if ($dest->image && !str_starts_with($dest->image, 'http')) {
+
+            // Hardcode geographically perfect images onto Both properties so the Frontend sees them directly
+            // Force Local images only to avoid all 404s and Unsplash issues forever
+            if ($dest->title === 'Cairo') {
+                $dest->src = '/images/pyramids-vip.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Alexandria') {
+                $dest->src = '/images/era-greco-roman.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Luxor') {
+                $dest->src = '/images/luxor-souk.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Aswan') {
+                $dest->src = '/images/aswan-nubian-market.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Hurghada') {
+                $dest->src = '/images/tour-red-sea.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Sharm El.S') {
+                $dest->src = '/images/home/dest-redsea.jpg';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Marsa Alam') {
+                $dest->src = '/images/tour-desert-safari.png';
+                $dest->image = null;
+            }
+            if ($dest->title === 'Dahab') {
+                $dest->src = '/images/saint-catherine.png';
+                $dest->image = null;
+            }
+
+            if ($dest->image && !str_starts_with($dest->image, 'http') && !str_starts_with($dest->image, '/')) {
                 $dest->image = url($dest->image);
             } elseif (!$dest->image) {
                 $dest->image = null;

@@ -20,11 +20,21 @@ class BookingController extends Controller
         $bookings = Booking::where('user_id', $request->user()->id)->get();
         
         $formattedBookings = $bookings->map(function($booking) {
-            $title = 'عنصر غير متوفر';
-            $image = null;
+            $title = $booking->item_title ?: 'عنصر غير متوفر';
+            $image = $booking->item_image ?: null;
             $link = '#';
 
-            if ($booking->item_type == 'tour' || $booking->item_type == 'package') {
+            if ($booking->item_title && $booking->item_image) {
+                // Return immediately with the stored correct data!
+                // Best for custom dynamically named items (Attractions, Flights, Hotels)
+                if (str_contains($booking->item_type, 'safari')) $link = '/safari/1';
+                else if (str_contains($booking->item_type, 'flight')) $link = '/flight';
+                else if (str_contains($booking->item_type, 'hotel')) $link = '/hotels';
+                else if (str_contains($booking->item_type, 'transport')) $link = '/transportation';
+                else if (str_contains($booking->item_type, 'museum')) $link = '/museums';
+                else if (str_contains($booking->item_type, 'restaurant') || str_contains($booking->item_type, 'meal')) $link = '/restaurants';
+                else if (str_contains($booking->item_type, 'attraction')) $link = '/explore/egypt';
+            } else if ($booking->item_type == 'tour' || $booking->item_type == 'package') {
                 $item = Tour::find($booking->item_id);
                 if ($item) {
                     $title = $item->title;
@@ -40,12 +50,34 @@ class BookingController extends Controller
                 $title = '🎫 Event & Show Admission';
                 $image = '/events/event_hero_banner.png';
                 $link = '/events';
+            } else if ($booking->item_type == 'safari') {
+                $title = '🦁 Safari Adventure: Kenya vs Tanzania';
+                $image = 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600';
+                $link = '/safari/1';
+            } else if ($booking->item_type == 'flight') {
+                $title = '✈️ Flight Ticket (Confirmed)';
+                $image = 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=600';
+                $link = '/flight';
+            } else if ($booking->item_type == 'hotel') {
+                $title = '🏨 Luxury Hotel Reservation';
+                $image = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600';
+                $link = '/hotels';
+            } else if ($booking->item_type == 'transport') {
+                $title = '🚗 Private Transportation';
+                $image = 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600';
+                $link = '/transportation';
+            } else if ($booking->item_type == 'museum') {
+                $title = '🏺 Museum & Antiquities Pass';
+                $image = 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?w=600';
+                $link = '/museums';
+            } else if ($booking->item_type == 'meal' || $booking->item_type == 'restaurant') {
+                $title = '🍽️ Restaurant Table Booking';
+                $image = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600';
+                $link = '/restaurants';
             } else if ($booking->item_type == 'attraction') {
-                // الحجوزات القادمة من الأماكن السياحية الساحلية (Attractions)
-                // تم برمجتها هنا مباشرة كحل سريع وفعّال لعرضها في المناقشة
-                $title = 'رحلة مخصصة: الساحل الشمالي / معالم سياحية';
-                $image = 'https://images.unsplash.com/photo-1549880795-3bc4da5d985a?q=80&w=600&auto=format&fit=crop';
-                $link = '/attraction/north-coast';
+                $title = '🎟️ تذكرة عبور لمعلم سياحي (Attraction)';
+                $image = 'https://images.unsplash.com/photo-1539650116574-8efeb43e2b50?q=80&w=600';
+                $link = '/explore/egypt';
             } else {
                 $item = Destination::find($booking->item_id);
                 if ($item) {
@@ -80,6 +112,8 @@ class BookingController extends Controller
     {
         $validated = $request->validate([
             'item_type' => 'required|string',
+            'item_title' => 'nullable|string',
+            'item_image' => 'nullable|string',
             'item_id' => 'required',
             'date_info' => 'required|string',
             'total_price' => 'required|numeric',

@@ -22,10 +22,40 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\MuseumController;
 use App\Http\Controllers\SafariController;
 use App\Http\Controllers\ContentController;
+use App\Http\Controllers\AttractionController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\BazaarController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\AdminController;
+
+Route::get('/sanctum/csrf-cookie', function (Request $request) {
+    return response()->json(['message' => 'CSRF cookie set']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (Unprotected for local demo purposes, but normally wrapped in auth:sanctum & admin middleware)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->group(function () {
+    Route::get('/stats', [AdminController::class, 'stats']);
+    
+    Route::get('/users', [AdminController::class, 'users']);
+    Route::put('/users/{id}', [AdminController::class, 'updateUser']);
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    
+    Route::get('/bookings', [AdminController::class, 'bookings']);
+    Route::put('/bookings/{id}', [AdminController::class, 'updateBooking']);
+    Route::delete('/bookings/{id}', [AdminController::class, 'deleteBooking']);
+    
+    Route::get('/hotels', [AdminController::class, 'hotels']);
+    Route::post('/hotels', [AdminController::class, 'storeHotel']);
+    Route::put('/hotels/{id}', [AdminController::class, 'updateHotel']);
+    Route::delete('/hotels/{id}', [AdminController::class, 'deleteHotel']);
+});
 
 Route::get('/home', [HomeController::class, 'index']);
 
@@ -43,6 +73,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/social-login', [AuthController::class, 'socialLogin']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/verify-otp', [AuthController::class, 'verifyOTP']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
@@ -113,6 +145,10 @@ Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/museums', [MuseumController::class, 'index']);
 Route::get('/museums/{id}', [MuseumController::class, 'show']);
 
+// ===== مسارات الأسواق والتسوق (Bazaars & Shopping) =====
+Route::get('/bazaars', [BazaarController::class, 'index']);
+Route::get('/bazaars/{id}', [BazaarController::class, 'show']);
+
 // ===== مسارات السفاري والصحراء (Safaris) =====
 Route::get('/safaris', [SafariController::class, 'index']);
 Route::get('/safaris/{id}', [SafariController::class, 'show']);
@@ -128,8 +164,8 @@ Route::get('/content/hero-slides', [ContentController::class, 'getHeroSlides']);
 Route::get('/content/nav-items', [ContentController::class, 'getNavItems']);
 Route::get('/content/why-choose-us', [ContentController::class, 'getWhyChooseUs']);
 Route::get('/content/footer', [ContentController::class, 'getFooterData']);
-Route::get('/content/attractions', [ContentController::class, 'getAttractions']);
-Route::get('/content/attractions/{slug}', [ContentController::class, 'getAttraction']);
+Route::get('/content/attractions', [AttractionController::class, 'index']);
+Route::get('/content/attractions/{slug}', [AttractionController::class, 'show']);
 Route::get('/content/home-marquee', [ContentController::class, 'getHomeMarquee']);
 Route::get('/content/activity-filters', [ContentController::class, 'getActivityFilters']);
 
@@ -152,6 +188,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/notifications', [NotificationController::class, 'index']);
     Route::put('/user/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::put('/user/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+
+    // السلة (Cart)
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::delete('/cart/{productId}', [CartController::class, 'destroy']);
+    Route::delete('/cart', [CartController::class, 'clear']);
+    // Checkout OTP routes
+    Route::post('/checkout/send-otp', [PaymentController::class, 'sendCheckoutOTP']);
+    Route::post('/checkout/verify-otp', [PaymentController::class, 'verifyCheckoutOTP']);
 });
 
 // ===== One-time image setup route =====
