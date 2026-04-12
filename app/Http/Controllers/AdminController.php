@@ -123,4 +123,50 @@ class AdminController extends Controller
         }
         return response()->json(['message' => 'Hotel not found'], 404);
     }
+
+    public function tours()
+    {
+        return response()->json(\App\Models\Tour::orderBy('id', 'desc')->get());
+    }
+
+    public function storeTour(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'required|string',
+            'price' => 'required|numeric',
+            'duration' => 'nullable|string',
+            'image' => 'nullable|string'
+        ]);
+        
+        $tour = \App\Models\Tour::create($data);
+        return response()->json($tour, 201);
+    }
+
+    public function updateTour(Request $request, $id)
+    {
+        $tour = \App\Models\Tour::find($id);
+        if (!$tour) return response()->json(['message' => 'Tour not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'required|string',
+            'price' => 'required|numeric',
+            'duration' => 'nullable|string',
+            'image' => 'nullable|string'
+        ]);
+
+        $tour->update($data);
+        return response()->json($tour);
+    }
+
+    public function deleteTour($id)
+    {
+        $tour = \App\Models\Tour::find($id);
+        if ($tour) {
+            $tour->delete();
+            return response()->json(['message' => 'Tour deleted successfully']);
+        }
+        return response()->json(['message' => 'Tour not found'], 404);
+    }
 }

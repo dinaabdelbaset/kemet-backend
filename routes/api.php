@@ -55,6 +55,11 @@ Route::prefix('admin')->group(function () {
     Route::post('/hotels', [AdminController::class, 'storeHotel']);
     Route::put('/hotels/{id}', [AdminController::class, 'updateHotel']);
     Route::delete('/hotels/{id}', [AdminController::class, 'deleteHotel']);
+
+    Route::get('/tours', [AdminController::class, 'tours']);
+    Route::post('/tours', [AdminController::class, 'storeTour']);
+    Route::put('/tours/{id}', [AdminController::class, 'updateTour']);
+    Route::delete('/tours/{id}', [AdminController::class, 'deleteTour']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);
