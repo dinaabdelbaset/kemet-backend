@@ -266,6 +266,7 @@ Route::get('/fix-hotel-images', function () {
     $count = 0;
     \App\Models\Hotel::chunk(100, function ($hotels) use ($images, &$count) {
         foreach ($hotels as $hotel) {
+            /** @var \App\Models\Hotel $hotel */
             // Only fix hotels with broken local paths
             if (str_starts_with($hotel->image ?? '', '/hotels/') || str_starts_with($hotel->image ?? '', '/')) {
                 $img = $images[$count % count($images)];
@@ -358,6 +359,7 @@ Route::get('/setup-images', function () {
         $counters = ['cairo' => 0, 'coast' => 0, 'sahara' => 0, 'upper' => 0];
 
         foreach ($hotels as $hotel) {
+            /** @var \App\Models\Hotel $hotel */
             $loc = strtolower($hotel->location);
             $imagePath = '/hotels/nile.png'; 
             
