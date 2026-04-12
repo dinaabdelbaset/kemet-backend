@@ -172,7 +172,8 @@ class BookingController extends Controller
                         ->where('user_id', $request->user()->id)
                         ->firstOrFail();
                         
-        $booking->delete();
+        $booking->status = 'cancelled';
+        $booking->save();
 
         return response()->json([
             'success' => true,
