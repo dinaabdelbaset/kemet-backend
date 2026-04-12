@@ -90,6 +90,11 @@ Route::prefix('admin')->group(function () {
     Route::post('/transportations', [AdminController::class, 'storeTransportation']);
     Route::put('/transportations/{id}', [AdminController::class, 'updateTransportation']);
     Route::delete('/transportations/{id}', [AdminController::class, 'deleteTransportation']);
+
+    Route::get('/travelpackages', [AdminController::class, 'travelpackages']);
+    Route::post('/travelpackages', [AdminController::class, 'storeTravelPackage']);
+    Route::put('/travelpackages/{id}', [AdminController::class, 'updateTravelPackage']);
+    Route::delete('/travelpackages/{id}', [AdminController::class, 'deleteTravelPackage']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);

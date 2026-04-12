@@ -14,6 +14,29 @@ class AdminController extends Controller
         $revenue = Booking::where('status', '!=', 'cancelled')->sum('total_price');
         $profit = $revenue * 0.15; // 15% platform commission
 
+        // Get Top Places (most booked item_titles)
+        $topPlaces = \DB::table('bookings')
+            ->select('item_title as name', \DB::raw('count(*) as visits'))
+            ->where('status', '!=', 'cancelled')
+            ->groupBy('item_title')
+            ->orderByDesc('visits')
+            ->limit(4)
+            ->get();
+
+        // Get Best Users (users with most bookings)
+        $topUsers = User::withCount(['bookings' => function($query) {
+                $query->where('status', '!=', 'cancelled');
+            }])
+            ->orderByDesc('bookings_count')
+            ->limit(4)
+            ->get()
+            ->map(function($user) {
+                return [
+                    'name' => $user->name ?? ($user->first_name . ' ' . $user->last_name),
+                    'bookings' => $user->bookings_count
+                ];
+            });
+
         return response()->json([
             'users' => User::count(),
             'bookings' => Booking::count(),
@@ -21,6 +44,8 @@ class AdminController extends Controller
             'revenue' => $revenue,
             'profit' => $profit,
             'commission_rate' => '15%',
+            'top_places' => $topPlaces,
+            'top_users' => $topUsers
         ]);
     }
 
@@ -427,6 +452,127 @@ class AdminController extends Controller
     public function deleteTransportation($id)
     {
         $item = \App\Models\Transportation::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+
+    public function travelpackages()
+    {
+        if (class_exists('\App\Models\TravelPackage')) {
+             return response()->json(\App\Models\TravelPackage::orderBy('id', 'desc')->get());
+        }
+        return response()->json([]);
+    }
+
+    public function storeTravelPackage(Request $request)
+    {
+        if (!class_exists('\App\Models\TravelPackage')) return response()->json(['message' => 'Model not found'], 404);
+        
+        $data = $request->all();
+        
+        $item = \App\Models\TravelPackage::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateTravelPackage(Request $request, $id)
+    {
+        if (!class_exists('\App\Models\TravelPackage')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\TravelPackage::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->all();
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteTravelPackage($id)
+    {
+        if (!class_exists('\App\Models\TravelPackage')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\TravelPackage::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function reviews()
+    {
+        if (class_exists('\App\Models\Review')) {
+             return response()->json(\App\Models\Review::orderBy('id', 'desc')->get());
+        }
+        return response()->json([]);
+    }
+
+    public function storeReview(Request $request)
+    {
+        if (!class_exists('\App\Models\Review')) return response()->json(['message' => 'Model not found'], 404);
+        
+        $data = $request->all();
+        
+        $item = \App\Models\Review::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateReview(Request $request, $id)
+    {
+        if (!class_exists('\App\Models\Review')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Review::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->all();
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteReview($id)
+    {
+        if (!class_exists('\App\Models\Review')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Review::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function deals()
+    {
+        if (class_exists('\App\Models\Deal')) {
+             return response()->json(\App\Models\Deal::orderBy('id', 'desc')->get());
+        }
+        return response()->json([]);
+    }
+
+    public function storeDeal(Request $request)
+    {
+        if (!class_exists('\App\Models\Deal')) return response()->json(['message' => 'Model not found'], 404);
+        
+        $data = $request->all();
+        
+        $item = \App\Models\Deal::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateDeal(Request $request, $id)
+    {
+        if (!class_exists('\App\Models\Deal')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Deal::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->all();
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteDeal($id)
+    {
+        if (!class_exists('\App\Models\Deal')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Deal::find($id);
         if ($item) {
             $item->delete();
             return response()->json(['message' => 'Deleted successfully']);
