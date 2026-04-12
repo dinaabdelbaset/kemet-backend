@@ -11,11 +11,16 @@ class AdminController extends Controller
 {
     public function stats()
     {
+        $revenue = Booking::where('status', '!=', 'cancelled')->sum('total_price');
+        $profit = $revenue * 0.15; // 15% platform commission
+
         return response()->json([
             'users' => User::count(),
             'bookings' => Booking::count(),
             'hotels' => Hotel::count(),
-            'revenue' => Booking::sum('total_price'),
+            'revenue' => $revenue,
+            'profit' => $profit,
+            'commission_rate' => '15%',
         ]);
     }
 
