@@ -60,6 +60,36 @@ Route::prefix('admin')->group(function () {
     Route::post('/tours', [AdminController::class, 'storeTour']);
     Route::put('/tours/{id}', [AdminController::class, 'updateTour']);
     Route::delete('/tours/{id}', [AdminController::class, 'deleteTour']);
+
+    Route::get('/safaris', [AdminController::class, 'safaris']);
+    Route::post('/safaris', [AdminController::class, 'storeSafari']);
+    Route::put('/safaris/{id}', [AdminController::class, 'updateSafari']);
+    Route::delete('/safaris/{id}', [AdminController::class, 'deleteSafari']);
+
+    Route::get('/restaurants', [AdminController::class, 'restaurants']);
+    Route::post('/restaurants', [AdminController::class, 'storeRestaurant']);
+    Route::put('/restaurants/{id}', [AdminController::class, 'updateRestaurant']);
+    Route::delete('/restaurants/{id}', [AdminController::class, 'deleteRestaurant']);
+
+    Route::get('/museums', [AdminController::class, 'museums']);
+    Route::post('/museums', [AdminController::class, 'storeMuseum']);
+    Route::put('/museums/{id}', [AdminController::class, 'updateMuseum']);
+    Route::delete('/museums/{id}', [AdminController::class, 'deleteMuseum']);
+
+    Route::get('/events', [AdminController::class, 'events']);
+    Route::post('/events', [AdminController::class, 'storeEvent']);
+    Route::put('/events/{id}', [AdminController::class, 'updateEvent']);
+    Route::delete('/events/{id}', [AdminController::class, 'deleteEvent']);
+
+    Route::get('/bazaars', [AdminController::class, 'bazaars']);
+    Route::post('/bazaars', [AdminController::class, 'storeBazaar']);
+    Route::put('/bazaars/{id}', [AdminController::class, 'updateBazaar']);
+    Route::delete('/bazaars/{id}', [AdminController::class, 'deleteBazaar']);
+
+    Route::get('/transportations', [AdminController::class, 'transportations']);
+    Route::post('/transportations', [AdminController::class, 'storeTransportation']);
+    Route::put('/transportations/{id}', [AdminController::class, 'updateTransportation']);
+    Route::delete('/transportations/{id}', [AdminController::class, 'deleteTransportation']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);

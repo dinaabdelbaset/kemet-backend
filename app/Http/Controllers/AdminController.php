@@ -169,4 +169,269 @@ class AdminController extends Controller
         }
         return response()->json(['message' => 'Tour not found'], 404);
     }
+
+    public function safaris()
+    {
+        return response()->json(\App\Models\Safari::orderBy('id', 'desc')->get());
+    }
+
+    public function storeSafari(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Safari::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateSafari(Request $request, $id)
+    {
+        $item = \App\Models\Safari::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteSafari($id)
+    {
+        $item = \App\Models\Safari::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function restaurants()
+    {
+        return response()->json(\App\Models\Restaurant::orderBy('id', 'desc')->get());
+    }
+
+    public function storeRestaurant(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Restaurant::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateRestaurant(Request $request, $id)
+    {
+        $item = \App\Models\Restaurant::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteRestaurant($id)
+    {
+        $item = \App\Models\Restaurant::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function museums()
+    {
+        return response()->json(\App\Models\Museum::orderBy('id', 'desc')->get());
+    }
+
+    public function storeMuseum(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Museum::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateMuseum(Request $request, $id)
+    {
+        $item = \App\Models\Museum::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteMuseum($id)
+    {
+        $item = \App\Models\Museum::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function events()
+    {
+        return response()->json(\App\Models\Event::orderBy('id', 'desc')->get());
+    }
+
+    public function storeEvent(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Event::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateEvent(Request $request, $id)
+    {
+        $item = \App\Models\Event::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteEvent($id)
+    {
+        $item = \App\Models\Event::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function bazaars()
+    {
+        return response()->json(\App\Models\Bazaar::orderBy('id', 'desc')->get());
+    }
+
+    public function storeBazaar(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Bazaar::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateBazaar(Request $request, $id)
+    {
+        $item = \App\Models\Bazaar::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteBazaar($id)
+    {
+        $item = \App\Models\Bazaar::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    public function transportations()
+    {
+        return response()->json(\App\Models\Transportation::orderBy('id', 'desc')->get());
+    }
+
+    public function storeTransportation(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+        
+        $item = \App\Models\Transportation::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateTransportation(Request $request, $id)
+    {
+        $item = \App\Models\Transportation::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+
+        $data = $request->validate([
+            'title' => 'required|string',
+            'location' => 'nullable|string',
+            'price' => 'nullable|numeric',
+            'image' => 'nullable|string'
+        ]);
+
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteTransportation($id)
+    {
+        $item = \App\Models\Transportation::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
 }
