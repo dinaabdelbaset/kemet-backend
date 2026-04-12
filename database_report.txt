@@ -14,7 +14,7 @@ Description: Seeds homepage sections data for the frontend display
 Seeder: HotelSeeder
 Description: Seeds hotels table with available accommodation options
 
-Seeder: ProductSeeder
+Seeder: PoducrtSeeder
 Description: Seeds products table for the shop/bazaar section with artifacts/souvenirs
 
 Seeder: TourSeeder
