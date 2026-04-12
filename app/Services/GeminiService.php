@@ -3,16 +3,14 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class GeminiService
 {
     protected string $apiKey;
-    protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
     public function __construct()
     {
-        $this->apiKey = env('GEMINI_API_KEY', '');
+        $this->apiKey = env('GEMINI_API_KEY');
     }
 
     /**
@@ -20,17 +18,7 @@ class GeminiService
      */
     public function ask(string $prompt, string $systemContext = '')
     {
-        if (empty($this->apiKey)) {
-            return "Error: Gemini API Key is missing in the environment variables.";
-        }
-
-        $apiKey = trim($this->apiKey);
-
-        // Found the issue: Gemini 1.5 is stripped from the user's tier, and 2.x versions have 0 quota.
-        // We will use the universal 'models/gemini-flash-latest' which is supported by their key.
-        $validModel = 'models/gemini-flash-latest';
-        
-        $url = 'https://generativelanguage.googleapis.com/v1beta/' . $validModel . ':generateContent?key=' . $apiKey;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $this->apiKey;
 
         $payload = [
             'contents' => [
@@ -42,8 +30,7 @@ class GeminiService
                 ]
             ],
             'generationConfig' => [
-                'temperature' => 0.5,
-                'maxOutputTokens' => 800,
+                'temperature' => 0.7,
             ]
         ];
 

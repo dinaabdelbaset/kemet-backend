@@ -24,6 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone_number',
+        'points',
     ];
 
     /**
@@ -47,5 +49,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected $appends = ['phone'];
+
+    public function getPhoneAttribute()
+    {
+        return $this->phone_number;
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }

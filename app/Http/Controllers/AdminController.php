@@ -11,8 +11,21 @@ class AdminController extends Controller
 {
     public function stats()
     {
+        $settingsPath = storage_path('app/settings.json');
+        $commissionRate = '15%';
+        $commissionFraction = 0.15;
+        
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true);
+            if (isset($settings['commission_rate'])) {
+                $commissionRate = $settings['commission_rate'];
+                $val = floatval(str_replace('%', '', $commissionRate));
+                $commissionFraction = $val / 100;
+            }
+        }
+
         $revenue = Booking::where('status', '!=', 'cancelled')->sum('total_price');
-        $profit = $revenue * 0.15; // 15% platform commission
+        $profit = $revenue * $commissionFraction; // dynamic platform commission
 
         // Get Top Places (most booked item_titles)
         $topPlaces = \DB::table('bookings')
@@ -43,10 +56,27 @@ class AdminController extends Controller
             'hotels' => Hotel::count(),
             'revenue' => $revenue,
             'profit' => $profit,
-            'commission_rate' => '15%',
+            'commission_rate' => $commissionRate,
             'top_places' => $topPlaces,
             'top_users' => $topUsers
         ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $data = $request->validate([
+            'commission_rate' => 'required|string'
+        ]);
+
+        $settings = [];
+        $settingsPath = storage_path('app/settings.json');
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true) ?? [];
+        }
+        $settings['commission_rate'] = $data['commission_rate'];
+        file_put_contents($settingsPath, json_encode($settings));
+
+        return response()->json(['message' => 'Settings updated', 'settings' => $settings]);
     }
 
     public function users()
@@ -80,7 +110,25 @@ class AdminController extends Controller
 
     public function bookings()
     {
-        return response()->json(Booking::with('user')->orderBy('id', 'desc')->get());
+        $settingsPath = storage_path('app/settings.json');
+        $commissionFraction = 0.15;
+        
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true);
+            if (isset($settings['commission_rate'])) {
+                $compRate = floatval(str_replace('%', '', $settings['commission_rate']));
+                $commissionFraction = $compRate / 100;
+            }
+        }
+
+        $bookings = Booking::with('user')->orderBy('id', 'desc')->get()->map(function($booking) use ($commissionFraction) {
+            $booking->platform_profit = round($booking->total_price * $commissionFraction, 2);
+            $booking->partner_share = round($booking->total_price - $booking->platform_profit, 2);
+            $booking->commission_percentage = ($commissionFraction * 100) . '%';
+            return $booking;
+        });
+
+        return response()->json($bookings);
     }
 
     public function updateBooking(Request $request, $id)
@@ -580,4 +628,40 @@ class AdminController extends Controller
         return response()->json(['message' => 'Not found'], 404);
     }
 
+    public function flights()
+    {
+        if (class_exists('\App\Models\Flight')) {
+             return response()->json(\App\Models\Flight::orderBy('id', 'desc')->get());
+        }
+        return response()->json([]);
+    }
+
+    public function storeFlight(Request $request)
+    {
+        if (!class_exists('\App\Models\Flight')) return response()->json(['message' => 'Model not found'], 404);
+        $data = $request->all();
+        $item = \App\Models\Flight::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateFlight(Request $request, $id)
+    {
+        if (!class_exists('\App\Models\Flight')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Flight::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+        $data = $request->all();
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteFlight($id)
+    {
+        if (!class_exists('\App\Models\Flight')) return response()->json(['message' => 'Model not found'], 404);
+        $item = \App\Models\Flight::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
 }

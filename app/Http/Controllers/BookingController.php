@@ -118,9 +118,28 @@ class BookingController extends Controller
             'date_info' => 'required|string',
             'total_price' => 'required|numeric',
             'guests' => 'nullable|integer',
+            'customer_first_name' => 'nullable|string',
+            'customer_last_name' => 'nullable|string',
+            'customer_phone' => 'nullable|string',
         ]);
         
-        $validated['user_id'] = $request->user()->id;
+        $user = $request->user();
+        
+        // Update user profile with phone
+        if (!empty($validated['customer_phone'])) {
+            $user->phone_number = $validated['customer_phone'];
+        }
+
+        // Award points: 1 point for every 1 unit of currency spent
+        $pointsEarned = floor($validated['total_price']);
+        $user->points += $pointsEarned;
+        $user->save();
+
+        unset($validated['customer_first_name']);
+        unset($validated['customer_last_name']);
+        unset($validated['customer_phone']);
+
+        $validated['user_id'] = $user->id;
         $validated['status'] = 'confirmed';
 
         $booking = Booking::create($validated);
@@ -134,9 +153,10 @@ class BookingController extends Controller
             'date_info' => $booking->date_info,
             'guests' => $booking->guests,
             'total_price' => $booking->total_price,
-            'name' => $request->user()->name,
-            'user_id' => $request->user()->id,
+            'name' => $user->name,
+            'user_id' => $user->id,
         ];
+
 
         try {
             // 1. Send Email to the Customer

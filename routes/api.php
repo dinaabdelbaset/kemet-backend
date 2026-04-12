@@ -16,6 +16,7 @@ use App\Http\Controllers\HotelController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DealController;
 use App\Http\Controllers\TransportationController;
+use App\Http\Controllers\TravelPackageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\EventController;
@@ -42,6 +43,7 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
 */
 Route::prefix('admin')->group(function () {
     Route::get('/stats', [AdminController::class, 'stats']);
+    Route::post('/settings', [AdminController::class, 'updateSettings']);
     
     Route::get('/users', [AdminController::class, 'users']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
@@ -95,6 +97,16 @@ Route::prefix('admin')->group(function () {
     Route::post('/travelpackages', [AdminController::class, 'storeTravelPackage']);
     Route::put('/travelpackages/{id}', [AdminController::class, 'updateTravelPackage']);
     Route::delete('/travelpackages/{id}', [AdminController::class, 'deleteTravelPackage']);
+
+    Route::get('/deals', [AdminController::class, 'deals']);
+    Route::post('/deals', [AdminController::class, 'storeDeal']);
+    Route::put('/deals/{id}', [AdminController::class, 'updateDeal']);
+    Route::delete('/deals/{id}', [AdminController::class, 'deleteDeal']);
+
+    Route::get('/flights', [AdminController::class, 'flights']);
+    Route::post('/flights', [AdminController::class, 'storeFlight']);
+    Route::put('/flights/{id}', [AdminController::class, 'updateFlight']);
+    Route::delete('/flights/{id}', [AdminController::class, 'deleteFlight']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);
@@ -169,6 +181,10 @@ Route::get('/blogs/{id}', [BlogController::class, 'show']);
 // ===== مسارات العروض والصفقات (Deals) =====
 Route::get('/deals', [DealController::class, 'index']);
 Route::get('/deals/{id}', [DealController::class, 'show']);
+
+// ===== مسارات الباقات السياحية (Travel Packages) =====
+Route::get('/travelpackages', [TravelPackageController::class, 'index']);
+Route::get('/travelpackages/{id}', [TravelPackageController::class, 'show']);
 
 // ===== مسارات البحث (Global Search) =====
 Route::get('/search', [SearchController::class, 'search']);

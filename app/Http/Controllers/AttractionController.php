@@ -17,6 +17,10 @@ class AttractionController extends Controller
 
     public function show($slug)
     {
+        if (Attraction::count() === 0) {
+            $this->seedAttractions();
+        }
+
         $attraction = Attraction::where('slug', $slug)->first();
         if (!$attraction) {
             return response()->json(['message' => 'Attraction not found'], 404);

@@ -251,6 +251,10 @@ class AuthController extends Controller
             $user->email = $request->email;
         }
 
+        if ($request->has('phone')) {
+            $user->phone_number = $request->phone;
+        }
+
         $avatarUrl = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
