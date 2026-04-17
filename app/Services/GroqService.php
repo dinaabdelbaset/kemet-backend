@@ -12,26 +12,39 @@ class GroqService
 
     public function __construct()
     {
-        $this->apiKey = env('GROQ_API_KEY');
+        $this->apiKey = env('GROQ_API_KEY', '');
     }
 
     /**
-     * Send a prompt to Groq with system context.
+     * Send a prompt to Groq with system context and conversation history.
      */
-    public function ask(string $prompt, string $systemContext = '')
+    public function ask(string $prompt, string $systemContext = '', array $history = [])
     {
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => $systemContext
+            ]
+        ];
+
+        // Append chat history (only last 6 messages to save tokens and prevent overload)
+        $recentHistory = array_slice($history, -6);
+        foreach ($recentHistory as $msg) {
+            $messages[] = [
+                'role' => isset($msg['role']) ? $msg['role'] : 'user',
+                'content' => isset($msg['content']) ? $msg['content'] : ''
+            ];
+        }
+
+        // Lastly, append the new user prompt
+        $messages[] = [
+            'role' => 'user',
+            'content' => $prompt
+        ];
+
         $payload = [
             'model' => 'llama-3.1-8b-instant',
-            'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => $systemContext
-                ],
-                [
-                    'role' => 'user',
-                    'content' => $prompt
-                ]
-            ],
+            'messages' => $messages,
             'temperature' => 0.5,
         ];
 
