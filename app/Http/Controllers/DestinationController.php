@@ -13,7 +13,7 @@ class DestinationController extends Controller
             // Hardcode geographically perfect images onto Both properties so the Frontend sees them directly
             // Force Local images only to avoid all 404s and Unsplash issues forever
             if ($dest->title === 'Cairo') {
-                $dest->src = '/images/pyramids-vip.png';
+                $dest->src = '/images/tour-desert-safari.png'; // User requested this for Cairo
                 $dest->image = null;
             }
             if ($dest->title === 'Alexandria') {
@@ -37,7 +37,7 @@ class DestinationController extends Controller
                 $dest->image = null;
             }
             if ($dest->title === 'Marsa Alam') {
-                $dest->src = '/images/tour-desert-safari.png';
+                $dest->src = '/images/tour-red-sea.png'; // Red sea image for Marsa Alam
                 $dest->image = null;
             }
             if ($dest->title === 'Dahab') {

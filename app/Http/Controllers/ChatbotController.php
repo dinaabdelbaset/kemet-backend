@@ -24,13 +24,20 @@ class ChatbotController extends Controller
 
         $userMessage = $request->input('message');
 
-        // Drastically limit records and format as plain text instead of JSON to save tokens (under 500 TPM)
-        $tours = \Schema::hasTable('tours') ? Tour::select('title', 'location')->limit(15)->get()->map(fn($q) => "{$q->title} ({$q->location})")->implode(', ') : '';
-        $products = \Schema::hasTable('products') ? Product::select('name', 'category')->limit(15)->get()->map(fn($q) => "{$q->name} ({$q->category})")->implode(', ') : '';
-        $destinations = \Schema::hasTable('destinations') ? \App\Models\Destination::select('title')->limit(15)->get()->pluck('title')->implode(', ') : '';
-        $activities = \Schema::hasTable('activities') ? \App\Models\Activity::select('title', 'location')->limit(15)->get()->map(fn($q) => "{$q->title} ({$q->location})")->implode(', ') : '';
-        $hotels = \Schema::hasTable('hotels') ? \App\Models\Hotel::select('title', 'location')->limit(15)->get()->map(fn($q) => "{$q->title} ({$q->location})")->implode(', ') : '';
-        $deals = \Schema::hasTable('deals') ? \App\Models\Deal::select('title')->limit(10)->get()->pluck('title')->implode(', ') : '';
+        // Provide a larger dataset to context (LLMs can handle larger tokens now)
+        $tours = \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        $products = \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '';
+        $destinations = \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '';
+        $activities = \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        
+        $restaurants = \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '';
+        $museums = \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '';
+        $safaris = \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        $events = \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        $bazaars = \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        $transportations = \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '';
+        $hotels = \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
+        $deals = \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(10)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '';
 
         // Build the comprehensive system prompt using Heredoc to prevent quote escaping issues
         $context = <<<EOT
@@ -54,8 +61,31 @@ Your main job is to assist users in answering inquiries, planning trips, booking
 
 قواعد هامة جداً للردود (STRICT RULES - AVOID HALLUCINATION):
 - 💡 إجابات مختصرة جداً ودقيقة (Conciseness): جاوب مباشرة على قد السؤال بدون أي رغي أو ديباجات طويلة. لو قال "مرحباً"، قل له "أهلاً بك في كيميت، إزاي أقدر أساعدك؟" في سطر واحد.
-- 🚨 الاعتماد على الداتا: استخدم البيانات المرفقة في الأسفل (الداتا الخاصة بنا) لإخراج الترشيحات الحقيقية للمبيعات والمطاعم والرحلات المتوفرة.
-- 🚨 جغرافيا دقيقة وممنوع التأليف: لا تخلط بين المحافظات. ولا تؤلف أي مكان غير موجود في الواقع أو في الداتا. كن دقيقاً بنسبة 100%.
+- 🚨 الاعتماد على الداتا: استخدم البيانات المرفقة في الأسفل لإخراج الترشيحات. يتوفر مع كل عرض الـ ID الخاص به مثل [ID:5].
+- 🚨 ممنوع التأليف تماماً (NO HALLUCINATION): **لا تقم أبداً** بترشيح مكان أو مطعم أو متحف غير موجود في القائمة المرفقة.
+- 🚨 أزرار الحجز: استخدم Markdown للروابط كالتالي: [نص الزر](/routing_path). أمثلة حسب النوع:
+   أ) فنادق: [/hotels/ID] (مثال: [/hotels/5]) أو لمدينة كاملة [/hotels?city=CityName]
+   ب) رحلات (Tours): [/tours/ID]
+   ج) متاحف: [/museums/ID]
+   د) سفاري: [/safari/ID]
+   هـ) بازارات: [/bazaars/ID]
+   و) فعاليات (Events): [/events/ID]
+   ז) مواصلات: [/transportation/ID]
+   ح) مطاعم: [/restaurants/ID] (مثال: [/restaurants/2])
+   لا تظهر الـ ID للعميل، ولا تخترع ID من عندك. ولا تكتب Absolute Links.
+- 🚨 جغرافيا دقيقة: لا تخلط بين المحافظات. كن دقيقاً بنسبة 100%.
+- 🌟 المعرفة بصفحات الموقع (Home Page Linking): 
+   - أنت تعرف قسم "رحلة اليوم الواحد" (One Day Tour). وجه المستخدم لـ [/tours].
+   - قسـم "مصر عبر الزمن" (Egypt through time). وجه المستخدم لـ [/museums] أو [/destinations].
+   - عـروض "Grab up to 35% off on your favorite Destination" و "Today's Best Deals". وجه المستخدم لـ [/deals].
+   - حـجز الطيران "احجز رحلتك الجوية إلى مصر" (Book Flights). وجه المستخدم لـ [/flights].
+   - قسـم "التقييمات" (Customer Reviews). وجه العميل لها عبر [/reviews].
+- 🚨 تسجيل التقييمات أوتوماتيكياً (Automated Reviews): 
+   - إذا لاحظت أن العميل يقوم بكتابة تقييم (Review) صريح لرحلة أو فندق أو مطعم، اشكره أولاً، **ويجب** إضافة هذا الكود السري في آخر سطر من ردك تماماً:
+     `[SAVE_REVIEW: item_type | item_id | rating | summary]`
+   - أمثلة لـ item_type: `tour`, `hotel`, `restaurant`, `museum`.
+   - أمثلة لـ rating: رقم من 1 إلى 5.
+   - مثال حقيقي يجب أن تكتبه هكذا: `[SAVE_REVIEW: tour | 1 | 5 | رحلة رائعة جدا]`
 
 --- KEMET FULL SERVICES & CAPABILITIES (Know everything the site offers) ---
 نحن في موقع KEMET نوفر حجز كل شيء حرفياً من الألف للياء للسائح، وهي:
@@ -76,6 +106,24 @@ Primary Destinations We Cover: Cairo, Alexandria, Luxor, Aswan, Hurghada, Sharm 
 
 --- OUR HOTELS ---
 {$hotels}
+
+--- OUR RESTAURANTS ---
+{$restaurants}
+
+--- OUR MUSEUMS ---
+{$museums}
+
+--- OUR SAFARI ---
+{$safaris}
+
+--- OUR EVENTS ---
+{$events}
+
+--- OUR BAZAARS ---
+{$bazaars}
+
+--- OUR TRANSPORTATION ---
+{$transportations}
 
 --- OUR ACTIVITIES ---
 {$activities}
@@ -117,6 +165,29 @@ EOT;
 
         // Call Groq
         $reply = $this->groqService->ask($userMessage, $context, $history);
+
+        // Process AI saving review commands dynamically
+        if (preg_match('/\[SAVE_REVIEW:\s*([^|\]]+?)\s*\|\s*([^|\]]+?)\s*\|\s*([^|\]]+?)\s*\|\s*([^\]]+?)\s*\]/ui', $reply, $matches)) {
+            $itemType = strtolower(trim($matches[1]));
+            $itemId = (int) trim($matches[2]);
+            $rating = (int) trim($matches[3]);
+            $comment = trim($matches[4]);
+
+            if ($user && \Schema::hasTable('reviews')) {
+                \DB::table('reviews')->insert([
+                    'user_id' => $user->id,
+                    'item_type' => $itemType, // Usually App\Models\Tour but keeping it simple for display
+                    'item_id' => $itemId > 0 ? $itemId : 1, 
+                    'rating' => $rating > 0 && $rating <= 5 ? $rating : 5,
+                    'comment' => $comment,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            
+            // Remove the secret code from the reply so the user doesn't see it (clean UI)
+            $reply = trim(str_replace($matches[0], '', $reply));
+        }
 
         // Save to Database
         if ($user) {

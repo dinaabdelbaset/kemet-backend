@@ -179,6 +179,18 @@ Route::get('/reviews/{item_type}/{item_id}', [ReviewController::class, 'index'])
 // مسار الشات بوت الحقيقي المدعوم بالذكاء الاصطناعي (Gemini / Groq LLM)
 Route::post('/chat', [App\Http\Controllers\ChatbotController::class, 'ask']);
 
+Route::get('/all-data', function () {
+    return [
+        'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::all() : [],
+        'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->get() : [],
+        'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->get() : [],
+        'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->get() : [],
+        'events' => \Schema::hasTable('events') ? \DB::table('events')->get() : [],
+        'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->get() : [],
+        'tours' => \Schema::hasTable('tours') ? \DB::table('tours')->get() : [],
+    ];
+});
+
 // ===== بيانات الشات بوت الحية من الداتا بيز =====
 Route::get('/chatbot-context', function () {
     $data = [];

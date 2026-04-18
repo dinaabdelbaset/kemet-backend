@@ -71,7 +71,10 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "blade-ui-kit/blade-heroicons",
+                "blade-ui-kit/blade-icons"
+            ]
         }
     },
     "config": {
