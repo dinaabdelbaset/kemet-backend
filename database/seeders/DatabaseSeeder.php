@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             DestinationSeeder::class,
             TourSeeder::class,
             ActivitySeeder::class,
-            ProductSeeder::class,
+            StoreSeeder::class,
             HomepageSeeder::class,
             HotelSeeder::class,
         ]);
