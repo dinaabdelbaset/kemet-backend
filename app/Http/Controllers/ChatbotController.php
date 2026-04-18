@@ -24,20 +24,9 @@ class ChatbotController extends Controller
 
         $userMessage = $request->input('message');
 
-        // Provide a larger dataset to context (LLMs can handle larger tokens now)
-        $tours = \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        $products = \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '';
-        $destinations = \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '';
-        $activities = \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        
-        $restaurants = \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '';
-        $museums = \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '';
-        $safaris = \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        $events = \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        $bazaars = \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        $transportations = \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '';
-        $hotels = \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '';
-        $deals = \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(10)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '';
+        // Extract dataset fetching to helper to prevent IDE type overload
+        $promptData = $this->getPromptData();
+        extract($promptData);
 
         // Build the comprehensive system prompt using Heredoc to prevent quote escaping issues
         $context = <<<EOT
@@ -233,6 +222,24 @@ EOT;
         return response()->json($messages);
     }
 
+    private function getPromptData(): array
+    {
+        return [
+            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
+            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
+            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(10)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+        ];
+    }
+
     public function getContext()
     {
         $data = [];
@@ -247,7 +254,7 @@ EOT;
 
         // Tours with prices (EGP)
         if (\Schema::hasTable('tours')) {
-            $data['tours'] = \App\Models\Tour::select('title', 'location', 'price', 'duration')
+            $data['tours'] = Tour::select('title', 'location', 'price', 'duration')
                 ->orderBy('price')->get()
                 ->map(fn($t) => "{$t->title} - {$t->location} - {$t->price} ج.م/شخص" . ($t->duration ? " - {$t->duration}" : ""))
                 ->implode("\n");
@@ -279,7 +286,7 @@ EOT;
 
         // Products (souvenirs) with prices (EGP)
         if (\Schema::hasTable('products')) {
-            $data['products'] = \App\Models\Product::select('name', 'category', 'price')
+            $data['products'] = Product::select('name', 'category', 'price')
                 ->orderBy('category')->get()
                 ->map(fn($p) => "{$p->name} ({$p->category}) - {$p->price} ج.م")
                 ->implode("\n");
