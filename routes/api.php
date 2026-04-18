@@ -156,6 +156,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // مسارات الوجهات السياحية (فنادق، مطاعم، متاحف...)
 Route::get('/destinations', [DestinationController::class, 'index']);
+Route::get('/destinations/search', [DestinationController::class, 'search']);
+
+// ==========================================
+// Support & Newsletter Routes
+// ==========================================
+
+Route::post('/support/contact', [SupportController::class, 'contact']);
+Route::post('/newsletter/subscribe', [SupportController::class, 'subscribe']);
+
 Route::get('/destinations/{id}', [DestinationController::class, 'show']);
 Route::post('/destinations', [DestinationController::class, 'store']); // يستحسن لاحقاً حمايتها بحساب المدير
 
