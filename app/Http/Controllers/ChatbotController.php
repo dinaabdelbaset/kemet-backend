@@ -242,99 +242,7 @@ EOT;
 
     public function getContext()
     {
-        $data = [];
-
-        // Hotels with prices (EGP)
-        if (\Schema::hasTable('hotels')) {
-            $data['hotels'] = \App\Models\Hotel::select('title', 'location', 'price_starts_from', 'rating')
-                ->orderBy('rating', 'desc')->limit(25)->get()
-                ->map(fn($h) => "{$h->title} - {$h->location} - من {$h->price_starts_from} ج.م/ليلة - تقييم {$h->rating}⭐")
-                ->implode("\n");
-        }
-
-        // Tours with prices (EGP)
-        if (\Schema::hasTable('tours')) {
-            $data['tours'] = Tour::select('title', 'location', 'price', 'duration')
-                ->orderBy('price')->get()
-                ->map(fn($t) => "{$t->title} - {$t->location} - {$t->price} ج.م/شخص" . ($t->duration ? " - {$t->duration}" : ""))
-                ->implode("\n");
-        }
-
-        // Restaurants with prices (EGP)
-        if (\Schema::hasTable('restaurants')) {
-            $data['restaurants'] = \App\Models\Restaurant::select('name', 'cuisine', 'location', 'price_range_min', 'price_range_max', 'rating')
-                ->orderBy('rating', 'desc')->limit(20)->get()
-                ->map(fn($r) => "{$r->name} - {$r->cuisine} - {$r->location} - {$r->price_range_min}-{$r->price_range_max} ج.م/شخص - {$r->rating}⭐")
-                ->implode("\n");
-        }
-
-        // Safaris with prices (EGP)
-        if (\Schema::hasTable('safaris')) {
-            $data['safaris'] = \App\Models\Safari::select('title', 'location', 'price', 'duration', 'rating')
-                ->get()
-                ->map(fn($s) => "{$s->title} - {$s->location} - {$s->price} ج.م/شخص - {$s->duration} - {$s->rating}⭐")
-                ->implode("\n");
-        }
-
-        // Museums with ticket prices (EGP)
-        if (\Schema::hasTable('museums')) {
-            $data['museums'] = \App\Models\Museum::select('name', 'location', 'ticket_price', 'rating')
-                ->get()
-                ->map(fn($m) => "{$m->name} - {$m->location} - تذكرة {$m->ticket_price} ج.م - {$m->rating}⭐")
-                ->implode("\n");
-        }
-
-        // Products (souvenirs) with prices (EGP)
-        if (\Schema::hasTable('products')) {
-            $data['products'] = Product::select('name', 'category', 'price')
-                ->orderBy('category')->get()
-                ->map(fn($p) => "{$p->name} ({$p->category}) - {$p->price} ج.م")
-                ->implode("\n");
-        }
-
-        // Deals (EGP)
-        if (\Schema::hasTable('deals')) {
-            $data['deals'] = \App\Models\Deal::select('title', 'category', 'price', 'locations')
-                ->limit(10)->get()
-                ->map(fn($d) => "{$d->title} ({$d->category}) - {$d->price} ج.م" . ($d->locations ? " - {$d->locations}" : ""))
-                ->implode("\n");
-        }
-
-        // Destinations
-        if (\Schema::hasTable('destinations')) {
-            $data['destinations'] = \App\Models\Destination::select('title', 'tours')
-                ->get()
-                ->map(fn($d) => "{$d->title} ({$d->tours} رحلة)")
-                ->implode(", ");
-        }
-
-        // Bazaars & Shopping
-        if (\Schema::hasTable('bazaars')) {
-            $data['bazaars'] = \App\Models\Bazaar::select('title', 'location', 'specialty')
-                ->get()
-                ->map(function($b) {
-                    $spec = $b->specialty;
-                    if (is_array($spec)) $spec = implode(', ', $spec);
-                    return "{$b->title} - {$b->location}" . ($spec ? " - تخصص: {$spec}" : "");
-                })
-                ->implode("\n");
-        }
-
-        // Events & Festivals (EGP)
-        if (\Schema::hasTable('events')) {
-            $data['events'] = \App\Models\Event::select('title', 'location', 'venue', 'date', 'price', 'category', 'rating')
-                ->get()
-                ->map(fn($e) => "{$e->title} ({$e->category}) - {$e->location}" . ($e->venue ? " - {$e->venue}" : "") . " - {$e->price} ج.م" . ($e->date ? " - {$e->date}" : "") . " - {$e->rating}⭐")
-                ->implode("\n");
-        }
-
-        // Transportation (EGP)
-        if (\Schema::hasTable('transportations')) {
-            $data['transportation'] = \App\Models\Transportation::select('type', 'route', 'company', 'class', 'price', 'duration', 'rating')
-                ->get()
-                ->map(fn($t) => "{$t->type}: {$t->route} - {$t->company} ({$t->class}) - {$t->price} ج.م - {$t->duration} - {$t->rating}⭐")
-                ->implode("\n");
-        }
+        $data = $this->getDetailedContextData();
 
         // ===== أسعار الصرف الحية =====
         try {
@@ -359,5 +267,93 @@ EOT;
         }
 
         return response()->json($data);
+    }
+
+    private function getDetailedContextData(): array
+    {
+        $data = [];
+
+        if (\Schema::hasTable('hotels')) {
+            $data['hotels'] = \App\Models\Hotel::select('title', 'location', 'price_starts_from', 'rating')
+                ->orderBy('rating', 'desc')->limit(25)->get()
+                ->map(fn($h) => "{$h->title} - {$h->location} - من {$h->price_starts_from} ج.م/ليلة - تقييم {$h->rating}⭐")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('tours')) {
+            $data['tours'] = Tour::select('title', 'location', 'price', 'duration')
+                ->orderBy('price')->get()
+                ->map(fn($t) => "{$t->title} - {$t->location} - {$t->price} ج.م/شخص" . ($t->duration ? " - {$t->duration}" : ""))
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('restaurants')) {
+            $data['restaurants'] = \App\Models\Restaurant::select('name', 'cuisine', 'location', 'price_range_min', 'price_range_max', 'rating')
+                ->orderBy('rating', 'desc')->limit(20)->get()
+                ->map(fn($r) => "{$r->name} - {$r->cuisine} - {$r->location} - {$r->price_range_min}-{$r->price_range_max} ج.م/شخص - {$r->rating}⭐")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('safaris')) {
+            $data['safaris'] = \App\Models\Safari::select('title', 'location', 'price', 'duration', 'rating')
+                ->get()
+                ->map(fn($s) => "{$s->title} - {$s->location} - {$s->price} ج.م/شخص - {$s->duration} - {$s->rating}⭐")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('museums')) {
+            $data['museums'] = \App\Models\Museum::select('name', 'location', 'ticket_price', 'rating')
+                ->get()
+                ->map(fn($m) => "{$m->name} - {$m->location} - تذكرة {$m->ticket_price} ج.م - {$m->rating}⭐")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('products')) {
+            $data['products'] = Product::select('name', 'category', 'price')
+                ->orderBy('category')->get()
+                ->map(fn($p) => "{$p->name} ({$p->category}) - {$p->price} ج.م")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('deals')) {
+            $data['deals'] = \App\Models\Deal::select('title', 'category', 'price', 'locations')
+                ->limit(10)->get()
+                ->map(fn($d) => "{$d->title} ({$d->category}) - {$d->price} ج.م" . ($d->locations ? " - {$d->locations}" : ""))
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('destinations')) {
+            $data['destinations'] = \App\Models\Destination::select('title', 'tours')
+                ->get()
+                ->map(fn($d) => "{$d->title} ({$d->tours} رحلة)")
+                ->implode(", ");
+        }
+
+        if (\Schema::hasTable('bazaars')) {
+            $data['bazaars'] = \App\Models\Bazaar::select('title', 'location', 'specialty')
+                ->get()
+                ->map(function($b) {
+                    $spec = $b->specialty;
+                    if (is_array($spec)) $spec = implode(', ', $spec);
+                    return "{$b->title} - {$b->location}" . ($spec ? " - تخصص: {$spec}" : "");
+                })
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('events')) {
+            $data['events'] = \App\Models\Event::select('title', 'location', 'venue', 'date', 'price', 'category', 'rating')
+                ->get()
+                ->map(fn($e) => "{$e->title} ({$e->category}) - {$e->location}" . ($e->venue ? " - {$e->venue}" : "") . " - {$e->price} ج.م" . ($e->date ? " - {$e->date}" : "") . " - {$e->rating}⭐")
+                ->implode("\n");
+        }
+
+        if (\Schema::hasTable('transportations')) {
+            $data['transportation'] = \App\Models\Transportation::select('type', 'route', 'company', 'class', 'price', 'duration', 'rating')
+                ->get()
+                ->map(fn($t) => "{$t->type}: {$t->route} - {$t->company} ({$t->class}) - {$t->price} ج.م - {$t->duration} - {$t->rating}⭐")
+                ->implode("\n");
+        }
+
+        return $data;
     }
 }
