@@ -23,7 +23,7 @@ class AdminController extends Controller
                 $commissionFraction = $val / 100;
             }
         }
-
+              // العمليه الحسابيه 
         $revenue = Booking::where('status', '!=', 'cancelled')->sum('total_price');
         $profit = $revenue * $commissionFraction; // dynamic platform commission
 

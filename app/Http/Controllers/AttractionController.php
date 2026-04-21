@@ -14,7 +14,7 @@ class AttractionController extends Controller
         }
         return response()->json(Attraction::all());
     }
-
+// نظام البحث لجوجل seo
     public function show($slug)
     {
         if (Attraction::count() === 0) {
