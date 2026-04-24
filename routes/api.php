@@ -54,6 +54,10 @@ Route::prefix('admin')->group(function () {
     Route::delete('/bookings/{id}', [AdminController::class, 'deleteBooking']);
     
     Route::get('/hotels', [AdminController::class, 'hotels']);
+    Route::get('/rooms', [AdminController::class, 'rooms']);
+    Route::post('/rooms', [AdminController::class, 'storeRoom']);
+    Route::put('/rooms/{id}', [AdminController::class, 'updateRoom']);
+    Route::delete('/rooms/{id}', [AdminController::class, 'deleteRoom']);
     Route::post('/hotels', [AdminController::class, 'storeHotel']);
     Route::put('/hotels/{id}', [AdminController::class, 'updateHotel']);
     Route::delete('/hotels/{id}', [AdminController::class, 'deleteHotel']);

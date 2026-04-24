@@ -64,9 +64,14 @@ class AdminController extends Controller
 
     public function updateSettings(Request $request)
     {
-        $data = $request->validate([
-            'commission_rate' => 'required|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $settings = [];
         $settingsPath = storage_path('app/settings.json');
@@ -88,12 +93,14 @@ class AdminController extends Controller
     {
         $user = User::find($id);
         if (!$user) return response()->json(['message' => 'Not found'], 404);
-        $data = $request->validate([
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         $user->update($data);
         return response()->json($user);
     }
@@ -136,9 +143,14 @@ class AdminController extends Controller
         $booking = Booking::find($id);
         if (!$booking) return response()->json(['message' => 'Not found'], 404);
         
-        $data = $request->validate([
-            'status' => 'required|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         $booking->update($data);
         return response()->json($booking);
     }
@@ -153,6 +165,37 @@ class AdminController extends Controller
         return response()->json(['message' => 'Booking not found'], 404);
     }
 
+        public function rooms()
+    {
+        return response()->json(\App\Models\Room::with('hotel')->orderBy('id', 'desc')->get());
+    }
+
+    public function storeRoom(\Illuminate\Http\Request $request)
+    {
+        $data = $request->all();
+        $item = \App\Models\Room::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function updateRoom(\Illuminate\Http\Request $request, $id)
+    {
+        $item = \App\Models\Room::find($id);
+        if (!$item) return response()->json(['message' => 'Not found'], 404);
+        $data = $request->all();
+        $item->update($data);
+        return response()->json($item);
+    }
+
+    public function deleteRoom($id)
+    {
+        $item = \App\Models\Room::find($id);
+        if ($item) {
+            $item->delete();
+            return response()->json(['message' => 'Deleted successfully']);
+        }
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
     public function hotels()
     {
         return response()->json(Hotel::orderBy('id', 'desc')->get());
@@ -160,12 +203,14 @@ class AdminController extends Controller
 
     public function storeHotel(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'required|string',
-            'price_starts_from' => 'required|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $hotel = Hotel::create($data);
         return response()->json($hotel, 201);
@@ -176,12 +221,14 @@ class AdminController extends Controller
         $hotel = Hotel::find($id);
         if (!$hotel) return response()->json(['message' => 'Hotel not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'required|string',
-            'price_starts_from' => 'required|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $hotel->update($data);
         return response()->json($hotel);
@@ -204,13 +251,14 @@ class AdminController extends Controller
 
     public function storeTour(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'required|string',
-            'price' => 'required|numeric',
-            'duration' => 'nullable|string',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $tour = \App\Models\Tour::create($data);
         return response()->json($tour, 201);
@@ -221,13 +269,14 @@ class AdminController extends Controller
         $tour = \App\Models\Tour::find($id);
         if (!$tour) return response()->json(['message' => 'Tour not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'required|string',
-            'price' => 'required|numeric',
-            'duration' => 'nullable|string',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $tour->update($data);
         return response()->json($tour);
@@ -250,12 +299,14 @@ class AdminController extends Controller
 
     public function storeSafari(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Safari::create($data);
         return response()->json($item, 201);
@@ -266,12 +317,14 @@ class AdminController extends Controller
         $item = \App\Models\Safari::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
@@ -294,12 +347,14 @@ class AdminController extends Controller
 
     public function storeRestaurant(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Restaurant::create($data);
         return response()->json($item, 201);
@@ -310,12 +365,14 @@ class AdminController extends Controller
         $item = \App\Models\Restaurant::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
@@ -338,12 +395,14 @@ class AdminController extends Controller
 
     public function storeMuseum(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Museum::create($data);
         return response()->json($item, 201);
@@ -354,12 +413,14 @@ class AdminController extends Controller
         $item = \App\Models\Museum::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
@@ -382,12 +443,14 @@ class AdminController extends Controller
 
     public function storeEvent(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Event::create($data);
         return response()->json($item, 201);
@@ -398,12 +461,14 @@ class AdminController extends Controller
         $item = \App\Models\Event::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
@@ -426,12 +491,14 @@ class AdminController extends Controller
 
     public function storeBazaar(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Bazaar::create($data);
         return response()->json($item, 201);
@@ -442,12 +509,14 @@ class AdminController extends Controller
         $item = \App\Models\Bazaar::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
@@ -470,12 +539,14 @@ class AdminController extends Controller
 
     public function storeTransportation(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
         
         $item = \App\Models\Transportation::create($data);
         return response()->json($item, 201);
@@ -486,12 +557,14 @@ class AdminController extends Controller
         $item = \App\Models\Transportation::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
-        $data = $request->validate([
-            'title' => 'required|string',
-            'location' => 'nullable|string',
-            'price' => 'nullable|numeric',
-            'image' => 'nullable|string'
-        ]);
+        $data = $request->all();
+        if (isset($data['name'])) { 
+            $data['title'] = $data['name']; 
+            unset($data['name']); 
+        }
+        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
+            $data['price_starts_from'] = $data['price']; 
+        }
 
         $item->update($data);
         return response()->json($item);
