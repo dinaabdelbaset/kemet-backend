@@ -148,9 +148,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø·Ù„Ø¨Ø§Øª Ù„Ù„Ù…ØªØ¬Ø±
     Route::get('/orders/my-orders', [OrderController::class, 'userOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
-    // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ø³ØªØ±Ø¬Ø§Ø¹ Ù…Ø­Ø§Ø¯Ø«Ø§Øª Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ù„Ù„Ø¹Ù…ÙŠÙ„
-    Route::get('/chat/history', [App\Http\Controllers\ChatbotController::class, 'history']);
-
     // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ù…Ø®ØµØµØ© Ù„Ù„Ø­Ø³Ø§Ø¨Ø§Øª
     Route::post('/chat/auth', [App\Http\Controllers\ChatbotController::class, 'askAuth']);
 
@@ -191,6 +188,7 @@ Route::get('/reviews/{item_type}/{item_id}', [ReviewController::class, 'index'])
 
 // Ù…Ø³Ø§Ø± Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ø­Ù‚ÙŠÙ‚ÙŠ Ø§Ù„Ù…Ø¯Ø¹ÙˆÙ… Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (Gemini / Groq LLM)
 Route::post('/chat', [App\Http\Controllers\ChatbotController::class, 'ask']);
+Route::get('/chat/history', [App\Http\Controllers\ChatbotController::class, 'history']);
 
 Route::get('/all-data', function () {
     return [
