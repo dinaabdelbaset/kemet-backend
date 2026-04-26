@@ -48,8 +48,11 @@ class ChatbotController extends Controller
 
         $cleanMessage = mb_strtolower(trim($userMessage));
 
-        // Check if user is asking for human customer service
-        $humanKeywords = ['خدمة عملاء', 'حد يرد عليا', 'موظف', 'ادارة', 'بشر'];
+        // Check if user is asking for human customer service (include letter variations)
+        $humanKeywords = [
+            'خدمة عملاء', 'خدمه عملاء', 'خدمة العملاء', 'خدمه العملاء', 
+            'حد يرد', 'موظف', 'ادارة', 'اداره', 'إدارة', 'إداره', 'بشر', 'انسان'
+        ];
         foreach ($humanKeywords as $keyword) {
             if (str_contains($cleanMessage, $keyword)) {
                 $chatSession->update(['is_human_mode' => true]);
