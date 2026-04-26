@@ -115,7 +115,7 @@ Route::prefix('admin')->group(function () {
 
     // Admin Approvals
     Route::get('/approvals/pending', [AdminApprovalController::class, 'getPendingItems']);
-    Route::post('/approvals/hotels/{id}', [AdminApprovalController::class, 'moderateHotel']);
+    Route::post('/approvals/{type}/{id}', [AdminApprovalController::class, 'moderateItem']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);
