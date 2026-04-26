@@ -949,3 +949,11 @@ Route::get('/kamet-images/{name}', function ($name) {
 });
 
 
+
+Route::prefix('livechat')->group(function () {
+    Route::get('/sessions', [\App\Http\Controllers\LiveChatController::class, 'getActiveSessions']);
+    Route::get('/sessions/{sessionToken}/messages', [\App\Http\Controllers\LiveChatController::class, 'getSessionMessages']);
+    Route::post('/sessions/{sessionToken}/reply', [\App\Http\Controllers\LiveChatController::class, 'replyToSession']);
+    Route::post('/sessions/{sessionToken}/close', [\App\Http\Controllers\LiveChatController::class, 'closeSession']);
+});
+

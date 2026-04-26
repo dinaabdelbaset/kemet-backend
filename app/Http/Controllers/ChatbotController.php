@@ -19,10 +19,55 @@ class ChatbotController extends Controller
     public function ask(Request $request)
     {
         $request->validate([
-            'message' => 'required|string|max:15000'
+            'message' => 'required|string|max:15000',
+            'session_token' => 'required|string|max:255'
         ]);
 
         $userMessage = $request->input('message');
+        $sessionToken = $request->input('session_token');
+        $user = auth('sanctum')->user();
+
+        // Find or Create Chat Session
+        $chatSession = \App\Models\ChatSession::firstOrCreate(
+            ['session_token' => $sessionToken],
+            ['user_id' => $user ? $user->id : null, 'is_human_mode' => false, 'is_closed' => false]
+        );
+
+        // Update user_id if logged in later
+        if ($user && !$chatSession->user_id) {
+            $chatSession->update(['user_id' => $user->id]);
+        }
+
+        // Save User Message
+        \App\Models\ChatMessage::create([
+            'user_id' => $user ? $user->id : null,
+            'session_id' => $sessionToken,
+            'role' => 'user',
+            'content' => $userMessage
+        ]);
+
+        $cleanMessage = mb_strtolower(trim($userMessage));
+
+        // Check if user is asking for human customer service
+        $humanKeywords = ['خدمة عملاء', 'حد يرد عليا', 'موظف', 'ادارة', 'بشر'];
+        foreach ($humanKeywords as $keyword) {
+            if (str_contains($cleanMessage, $keyword)) {
+                $chatSession->update(['is_human_mode' => true]);
+                $reply = "جاري تحويلك لأحد ممثلي خدمة العملاء... ثواني وهيكون معاك للرد على كل استفساراتك.";
+                \App\Models\ChatMessage::create([
+                    'user_id' => null,
+                    'session_id' => $sessionToken,
+                    'role' => 'assistant',
+                    'content' => $reply
+                ]);
+                return response()->json(['answer' => $reply, 'is_human_mode' => true]);
+            }
+        }
+
+        // If Human Mode is ON, do NOT hit Groq!
+        if ($chatSession->is_human_mode) {
+            return response()->json(['answer' => '', 'is_human_mode' => true]);
+        }
 
         // Extract dataset fetching to helper to prevent IDE type overload
         $promptData = $this->getPromptData();
@@ -206,22 +251,17 @@ EOT;
             $reply = trim(str_replace($matches[0], '', $reply));
         }
 
-        // Save to Database
-        if ($user) {
-            \App\Models\ChatMessage::create([
-                'user_id' => $user->id,
-                'role' => 'user',
-                'content' => $userMessage
-            ]);
-            \App\Models\ChatMessage::create([
-                'user_id' => $user->id,
-                'role' => 'assistant',
-                'content' => $reply
-            ]);
-        }
+        // Save Bot Reply to Database
+        \App\Models\ChatMessage::create([
+            'user_id' => null, // Bot doesn't have a user ID
+            'session_id' => $sessionToken,
+            'role' => 'assistant',
+            'content' => $reply
+        ]);
 
         return response()->json([
-            'answer' => $reply
+            'answer' => $reply,
+            'is_human_mode' => false
         ]);
     }
 
@@ -232,22 +272,33 @@ EOT;
 
     public function history(Request $request)
     {
-        $user = $request->user();
-        if (!$user) {
-            return response()->json([]);
+        $sessionToken = $request->input('session_token');
+        if (!$sessionToken) {
+            return response()->json(['messages' => [], 'is_human_mode' => false]);
         }
 
-        $messages = \App\Models\ChatMessage::where('user_id', $user->id)
+        $messages = \App\Models\ChatMessage::where('session_id', $sessionToken)
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function($msg) {
+                // Determine sender
+                $sender = 'bot';
+                if ($msg->role === 'user') $sender = 'user';
+                if ($msg->role === 'admin') $sender = 'admin';
+
                 return [
-                    'sender' => $msg->role === 'assistant' ? 'bot' : 'user',
+                    'sender' => $sender,
                     'text' => $msg->content
                 ];
             });
 
-        return response()->json($messages);
+        // Also get session status
+        $session = \App\Models\ChatSession::where('session_token', $sessionToken)->first();
+
+        return response()->json([
+            'messages' => $messages,
+            'is_human_mode' => $session ? $session->is_human_mode : false
+        ]);
     }
 
     private function getPromptData(): array
