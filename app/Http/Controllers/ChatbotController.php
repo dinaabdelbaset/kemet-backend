@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\GroqService;
+use App\Services\OpenAIService;
 use App\Models\Tour;
 use App\Models\Product;
 
 class ChatbotController extends Controller
 {
-    private GroqService $groqService;
+    private OpenAIService $aiService;
 
-    public function __construct(GroqService $groqService)
+    public function __construct(OpenAIService $aiService)
     {
-        $this->groqService = $groqService;
+        $this->aiService = $aiService;
     }
 
     public function ask(Request $request)
@@ -180,8 +180,8 @@ EOT;
             }
         }
 
-        // Call Groq
-        $reply = $this->groqService->ask($userMessage, $context, $history);
+        // Call OpenAI
+        $reply = $this->aiService->ask($userMessage, $context, $history);
 
         // Process AI saving review commands dynamically
         if (preg_match('/\[SAVE_REVIEW:\s*([^|\]]+?)\s*\|\s*([^|\]]+?)\s*\|\s*([^|\]]+?)\s*\|\s*([^\]]+?)\s*\]/ui', $reply, $matches)) {
