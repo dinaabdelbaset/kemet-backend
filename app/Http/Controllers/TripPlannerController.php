@@ -34,9 +34,9 @@ class TripPlannerController extends Controller
         $days = $request->input('days');
         
         // Fetch real data to pass to the AI context
-        $hotels = Hotel::where('city', 'like', "%{$destination}%")->limit(3)->get(['id', 'name', 'price', 'rating', 'image']);
+        $hotels = Hotel::where('location', 'like', "%{$destination}%")->limit(3)->get(['id', 'title as name', 'price_starts_from as price', 'rating', 'image']);
         if ($hotels->isEmpty()) {
-            $hotels = Hotel::limit(2)->get(['id', 'name', 'price', 'rating', 'image']);
+            $hotels = Hotel::limit(2)->get(['id', 'title as name', 'price_starts_from as price', 'rating', 'image']);
         }
         
         $tours = Tour::where('location', 'like', "%{$destination}%")->limit(4)->get(['id', 'title', 'price', 'image']);
