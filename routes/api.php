@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -955,3 +955,4 @@ Route::prefix('livechat')->group(function () {
     Route::post('/sessions/{sessionToken}/close', [\App\Http\Controllers\LiveChatController::class, 'closeSession']);
 });
 
+Route::post('/trip-planner/generate', [App\Http\Controllers\TripPlannerController::class, 'generateTrip']);
