@@ -68,7 +68,7 @@ class EventSeeder extends Seeder
             ['title'=>'رحلة الطيور المهاجرة ببحيرة قارون','location'=>'Fayoum','category'=>'Cultural','image'=>'/events/ev_fayoum_birds.jpg','date'=>'2025-02-01','price'=>'60.00','description'=>'جولة إيكولوجية موسمية لمراقبة مئات الآلاف من الطيور المهاجرة على بحيرة قارون مع خبراء الطيور.'],
             ['title'=>'مهرجان الصيد التقليدي بالفيوم','location'=>'Fayoum','category'=>'Cultural','image'=>'/events/ev_fayoum_fishing.jpg','date'=>'2025-10-01','price'=>'30.00','description'=>'مهرجان الصيد الشعبي السنوي على بحيرة قارون — مراكب الصيادين تتراص والعائلات تستمتع بأسماك مشوية طازجة.'],
             ['title'=>'ليالي التخييم الصحراوية بوادي الريان','location'=>'Fayoum','category'=>'Sport','image'=>'/events/ev_wadi_rayan_camping.jpg','date'=>'2025-01-10','price'=>'200.00','description'=>'رحلة تخييم شاملة في محمية وادي الريان بجانب الشلالات — أنشطة طبيعية وجلسات نار ومشاهدة النجوم.'],
-            ['title'=>'مهرجان الفيوم للمناطيد الساخنة','location'=>'Fayoum','category'=>'Sport','image'=>'https://images.unsplash.com/photo-1507608158173-1dcec673a2e5?w=1600&auto=format&fit=crop','date'=>'2025-12-15','price'=>'250.00','description'=>'تحليق بانورامي بالمناطيد الساخنة فوق بحيرات الفيوم والصحراء الذهبية وقت شروق الشمس — تجربة سياحية لا تُنسى.'],
+            ['title'=>'حفل موسيقي أسطوري بسفح الأهرامات','location'=>'Cairo','category'=>'Music','image'=>'/events/concert_fireworks.png','date'=>'2025-12-31','price'=>'500.00','description'=>'أضخم حفل موسيقي في الشرق الأوسط بليلة رأس السنة، ألعاب نارية مبهرة ومشاركة فنانين عالميين في أحضان التاريخ.'],
         ];
 
         foreach ($events as $e) {
