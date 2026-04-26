@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +31,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BazaarController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminApprovalController;
 
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['message' => 'CSRF cookie set']);
@@ -111,6 +112,10 @@ Route::prefix('admin')->group(function () {
     Route::post('/flights', [AdminController::class, 'storeFlight']);
     Route::put('/flights/{id}', [AdminController::class, 'updateFlight']);
     Route::delete('/flights/{id}', [AdminController::class, 'deleteFlight']);
+
+    // Admin Approvals
+    Route::get('/approvals/pending', [AdminApprovalController::class, 'getPendingItems']);
+    Route::post('/approvals/hotels/{id}', [AdminApprovalController::class, 'moderateHotel']);
 });
 
 Route::get('/home', [HomeController::class, 'index']);

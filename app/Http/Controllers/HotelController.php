@@ -19,7 +19,7 @@ class HotelController extends Controller
             $seeder->run();
         }
 
-        $query = Hotel::with('rooms');
+        $query = Hotel::with('rooms')->where('status', 'approved');
 
         if ($request->has('location') && $request->location) {
             $query->where('location', 'like', '%' . $request->location . '%');
@@ -34,7 +34,7 @@ class HotelController extends Controller
      */
     public function show(string $id)
     {
-        $hotel = Hotel::with('rooms')->find($id);
+        $hotel = Hotel::with('rooms')->where('status', 'approved')->find($id);
 
         if (!$hotel) {
             return response()->json(['message' => 'Hotel not found'], 404);
