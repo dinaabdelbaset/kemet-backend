@@ -134,11 +134,12 @@ EOT;
         // Retrieve real history from database if logged in
         $user = auth('sanctum')->user();
         if ($user) {
-            // Fetch last 10 messages from DB
+            // Fetch last 4 messages from DB to save tokens and prevent Groq 429 errors
             $dbHistory = \App\Models\ChatMessage::where('user_id', $user->id)
-                            ->orderBy('created_at', 'asc')
-                            ->take(10)
+                            ->orderBy('created_at', 'desc')
+                            ->take(4)
                             ->get()
+                            ->reverse()
                             ->map(function ($msg) {
                                 return [
                                     'role' => $msg->role,
@@ -225,18 +226,18 @@ EOT;
     private function getPromptData(): array
     {
         return [
-            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
-            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
-            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
-            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(15)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(10)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
+            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
+            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
         ];
     }
 
