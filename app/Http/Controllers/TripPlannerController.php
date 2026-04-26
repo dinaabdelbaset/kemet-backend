@@ -26,11 +26,13 @@ class TripPlannerController extends Controller
             'children' => 'required|integer|min:0',
             'days' => 'required|integer|min:1',
             'budget' => 'required|numeric|min:0',
+            'currency' => 'required|string|in:USD,EGP,EUR,GBP',
             'vibe' => 'required|string',
         ]);
 
         $destination = $request->input('destination');
         $budget = $request->input('budget');
+        $currency = $request->input('currency', 'USD');
         $days = $request->input('days');
         
         // Fetch real data to pass to the AI context
@@ -49,7 +51,7 @@ class TripPlannerController extends Controller
         $dbContext .= "Tours:\n" . json_encode($tours) . "\n";
         $dbContext .= "Transport:\n" . json_encode($transportation) . "\n";
 
-        $prompt = "Create a $days-day trip to $destination for {$request->adults} adults and {$request->children} children. The vibe is '{$request->vibe}'. Total budget: \$$budget.\n\n";
+        $prompt = "Create a $days-day trip to $destination for {$request->adults} adults and {$request->children} children. The vibe is '{$request->vibe}'. Total budget: $budget $currency.\n\n";
         $prompt .= $dbContext . "\n\n";
         $prompt .= "You MUST return ONLY a valid JSON object matching exactly this structure:
 {
