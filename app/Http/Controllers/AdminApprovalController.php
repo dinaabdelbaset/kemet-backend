@@ -25,7 +25,8 @@ class AdminApprovalController extends Controller
     public function moderateHotel(Request $request, $id)
     {
         $request->validate([
-            'action' => 'required|in:approve,reject'
+            'action' => 'required|in:approve,reject',
+            'reason' => 'nullable|string'
         ]);
 
         $hotel = Hotel::find($id);
@@ -35,13 +36,21 @@ class AdminApprovalController extends Controller
         }
 
         if ($request->action === 'approve') {
-            $hotel->status = 'approved';
-            $hotel->save();
-            return response()->json(['message' => 'Hotel approved successfully']);
+            if ($hotel->action_type === 'delete') {
+                $hotel->delete();
+                return response()->json(['message' => 'Hotel deletion approved']);
+            } else {
+                $hotel->status = 'approved';
+                $hotel->action_type = 'create'; // reset
+                $hotel->rejection_reason = null;
+                $hotel->save();
+                return response()->json(['message' => 'Hotel approved successfully']);
+            }
         }
 
         if ($request->action === 'reject') {
             $hotel->status = 'rejected';
+            $hotel->rejection_reason = $request->reason;
             $hotel->save();
             return response()->json(['message' => 'Hotel rejected successfully']);
         }
