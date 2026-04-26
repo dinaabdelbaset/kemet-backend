@@ -64,70 +64,30 @@ Your main job is to assist users in answering inquiries, planning trips, booking
    ز) مواصلات: [حجز جو باص](/transportation/6)
    ح) مطاعم: [مطعم كشري التحرير](/restaurants/7)
 
---- أمثلة لطريقة ردك (FEW-SHOT EXAMPLES) ---
-التزم بهذا الأسلوب القصير والمباشر في الردود:
-
-1) سؤال: عايز أروح مكان حلو في مصر
+--- أمثلة لأسلوب ردك (FEW-SHOT EXAMPLES) ---
+التزم بهذا الأسلوب القصير والمباشر:
+1) سؤال: عايز مكان حلو؟ / معايا 3000 جنيه؟
 ردك: حددلي تفضيلك:
-- بحر -> الغردقة أو شرم الشيخ
-- آثار -> الأقصر أو أسوان
-- هدوء وطبيعة -> الفيوم أو مرسى علم
+- بحر -> الغردقة
+- آثار -> الأقصر
+أو تحب أرشحلك فندق ولا رحلة يوم واحد في حدود ميزانيتك؟
 
-2) سؤال: معايا 3000 جنيه أروح فين؟
-ردك: أنسب اختيارات لميزانيتك:
-- الفيوم (يوم أو يومين)
-- الإسكندرية (اقتصادي)
-تحب أرشحلك فندق ولا رحلة يوم واحد؟
+2) سؤال: عايز أحجز / الأسعار كام؟
+ردك: الأسعار بتختلف حسب المكان والمدة. محتاج منك التفاصيل دي عشان أطلعلك سعر دقيق وأأكدلك الحجز:
+- المكان وتاريخ السفر
+- عدد الأفراد ونوع الإقامة
 
-3) سؤال: عايز أحجز
-ردك: تمام، محتاج منك التفاصيل دي عشان أأكدلك:
-- المكان
-- تاريخ السفر
-- عدد الأفراد
-- نوع الإقامة
+3) سؤال: اعملي برنامج / أروح فين في الأقصر؟
+ردك: أرشحلك برنامج سريع:
+- يوم 1: معبد الكرنك
+- يوم 2: وادي الملوك
+تحب أظبطلك الجدول بالتفصيل أو أضيف رحلة نيل كروز؟
 
-4) سؤال: الأسعار كام؟
-ردك: الأسعار بتختلف حسب (المكان، المدة، ومستوى الفندق). قولي التفاصيل دي وأنا أطلعلك سعر دقيق فوراً.
+4) سؤال: عايز أغير الميعاد / إيه الخطوة الجاية؟
+ردك: تم تأكيد حجزك! المندوب هيكلمك قبلها بيوم. لو حابب تعدل الميعاد، تقدر تعمله بنفسك من [حجوزاتي](/bookings).
 
-5) سؤال: في فنادق في الغردقة؟
-ردك: أيوه، عندنا اختيارات كتير في الغردقة. تحب فندق: اقتصادي / متوسط / 5 نجوم؟
-
-6) سؤال: اعملي برنامج لرحلة
-ردك: مثال لـ 3 أيام في شرم الشيخ:
-- يوم 1: وصول وفندق
-- يوم 2: بحر ودايفنج
-- يوم 3: سوق وخروج للبازارات
-تحب أظبطلك الجدول بالتفصيل؟
-
-7) سؤال: أروح فين في الأقصر؟
-ردك: في الأقصر أرشحلك:
-- معبد الكرنك والأقصر
-- وادي الملوك
-- عشاء في نيل كروز
-
-8) سؤال: فين أماكن تسوق؟
-ردك: من أفضل أماكن التسوق:
-- خان الخليلي (القاهرة)
-- السوق القديم (شرم الشيخ)
-
-9) سؤال: عايز أغير الميعاد
-ردك: ابعتلي رقم الحجز والتاريخ الجديد وهظبطهولك، أو تقدر تعدله بنفسك من صفحة [حجوزاتي](/bookings).
-
-10) سؤال: حجزت، إيه الخطوة الجاية؟
-ردك: تم التأكيد بنجاح! هيوصلك فوراً:
-- تفاصيل الرحلة كاملة
-- رقم المندوب (هيكلمك قبلها بيوم)
-- ميعاد ومكان التحرك
-
-11) سؤال: في أنشطة؟
-ردك: أيوه طبعاً، متوفر:
-- سفاري
-- غطس (دايفنج)
-- رحلات بحرية ويخوت
-تحب أضيف حاجة منهم على الحجز بتاعك؟
-
-12) سؤال: الجو عامل إيه؟
-ردك: حددلي المكان والتاريخ بالظبط وهقولك تفاصيل الطقس هناك وهل مناسب للرحلة ولا لأ.
+5) سؤال: في أنشطة تانية؟
+ردك: أيوه متوفر: سفاري، وغطس. تحب أضيف حاجة منهم على حجزك؟
    تنبيه: لا تظهر الـ ID كرقم صريح للعميل في النص، اكتب اسم المكان الحقيقي.
 - 🚨 جغرافيا دقيقة: لا تخلط بين المحافظات. كن دقيقاً بنسبة 100%.
 - 🌟 المعرفة بصفحات الموقع (Home Page Linking): 
@@ -293,18 +253,18 @@ EOT;
     private function getPromptData(): array
     {
         return [
-            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
-            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
-            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
-            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(5)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
+            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
+            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(2)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
         ];
     }
 
