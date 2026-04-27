@@ -38,18 +38,46 @@ class SearchController extends Controller
         $isMuseumKeyword = in_array(mb_strtolower($query), ['متحف', 'متاحف', 'museum', 'museums']);
         $isTourKeyword = in_array(mb_strtolower($query), ['جولة', 'جولات', 'رحلة', 'رحلات', 'tour', 'tours']);
 
-        $hotels = Hotel::when(!$isHotelKeyword, function($q) use ($searchQuery) {
+        // Bilingual translation mapping for robust search
+        $translations = [
+            'القاهرة' => 'Cairo', 'cairo' => 'القاهرة',
+            'الاسكندرية' => 'Alexandria', 'الإسكندرية' => 'Alexandria', 'alexandria' => 'الإسكندرية',
+            'شرم' => 'Sharm', 'شرم الشيخ' => 'Sharm', 'sharm' => 'شرم',
+            'الغردقة' => 'Hurghada', 'hurghada' => 'الغردقة',
+            'الاقصر' => 'Luxor', 'الأقصر' => 'Luxor', 'luxor' => 'الأقصر',
+            'اسوان' => 'Aswan', 'أسوان' => 'Aswan', 'aswan' => 'أسوان',
+            'الفيوم' => 'Fayoum', 'fayoum' => 'الفيوم',
+            'الجيزة' => 'Giza', 'giza' => 'الجيزة',
+            'الجونة' => 'Gouna', 'gouna' => 'الجونة',
+            'دهب' => 'Dahab', 'dahab' => 'دهب'
+        ];
+
+        $translatedQuery = $searchQuery;
+        foreach ($translations as $key => $val) {
+            if (mb_stripos($searchQuery, $key) !== false) {
+                $translatedQuery = $val;
+                break;
+            }
+        }
+
+        $hotels = Hotel::when(!$isHotelKeyword, function($q) use ($searchQuery, $translatedQuery) {
                 return $q->where('title', 'like', "%{$searchQuery}%")
                          ->orWhere('location', 'like', "%{$searchQuery}%")
-                         ->orWhere('description', 'like', "%{$searchQuery}%");
+                         ->orWhere('description', 'like', "%{$searchQuery}%")
+                         ->orWhere('title', 'like', "%{$translatedQuery}%")
+                         ->orWhere('location', 'like', "%{$translatedQuery}%")
+                         ->orWhere('description', 'like', "%{$translatedQuery}%");
             })
             ->limit(8)
             ->get();
 
-        $tours = Tour::when(!$isTourKeyword, function($q) use ($searchQuery) {
+        $tours = Tour::when(!$isTourKeyword, function($q) use ($searchQuery, $translatedQuery) {
                 return $q->where('title', 'like', "%{$searchQuery}%")
                          ->orWhere('location', 'like', "%{$searchQuery}%")
-                         ->orWhere('description', 'like', "%{$searchQuery}%");
+                         ->orWhere('description', 'like', "%{$searchQuery}%")
+                         ->orWhere('title', 'like', "%{$translatedQuery}%")
+                         ->orWhere('location', 'like', "%{$translatedQuery}%")
+                         ->orWhere('description', 'like', "%{$translatedQuery}%");
             })
             ->limit(8)
             ->get();
@@ -57,10 +85,13 @@ class SearchController extends Controller
         $restaurants = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('restaurants')) {
-                $restaurants = Restaurant::when(!$isRestaurantKeyword, function($q) use ($searchQuery) {
+                $restaurants = Restaurant::when(!$isRestaurantKeyword, function($q) use ($searchQuery, $translatedQuery) {
                         return $q->where('name', 'like', "%{$searchQuery}%")
                                  ->orWhere('location', 'like', "%{$searchQuery}%")
-                                 ->orWhere('cuisine', 'like', "%{$searchQuery}%");
+                                 ->orWhere('cuisine', 'like', "%{$searchQuery}%")
+                                 ->orWhere('name', 'like', "%{$translatedQuery}%")
+                                 ->orWhere('location', 'like', "%{$translatedQuery}%")
+                                 ->orWhere('cuisine', 'like', "%{$translatedQuery}%");
                     })
                     ->limit(8)
                     ->get();
@@ -72,6 +103,8 @@ class SearchController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasTable('events')) {
                 $events = Event::where('title', 'like', "%{$searchQuery}%")
                     ->orWhere('location', 'like', "%{$searchQuery}%")
+                    ->orWhere('title', 'like', "%{$translatedQuery}%")
+                    ->orWhere('location', 'like', "%{$translatedQuery}%")
                     ->limit(8)
                     ->get();
             }
@@ -80,9 +113,11 @@ class SearchController extends Controller
         $museums = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('museums')) {
-                $museums = Museum::when(!$isMuseumKeyword, function($q) use ($searchQuery) {
-                        return $q->where('title', 'like', "%{$searchQuery}%")
-                                 ->orWhere('location', 'like', "%{$searchQuery}%");
+                $museums = Museum::when(!$isMuseumKeyword, function($q) use ($searchQuery, $translatedQuery) {
+                        return $q->where('name', 'like', "%{$searchQuery}%")
+                                 ->orWhere('location', 'like', "%{$searchQuery}%")
+                                 ->orWhere('name', 'like', "%{$translatedQuery}%")
+                                 ->orWhere('location', 'like', "%{$translatedQuery}%");
                     })
                     ->limit(8)
                     ->get();
@@ -92,9 +127,11 @@ class SearchController extends Controller
         $safaris = [];
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('safaris')) {
-                $safaris = Safari::when(!$isSafariKeyword, function($q) use ($searchQuery) {
+                $safaris = Safari::when(!$isSafariKeyword, function($q) use ($searchQuery, $translatedQuery) {
                         return $q->where('title', 'like', "%{$searchQuery}%")
-                                 ->orWhere('location', 'like', "%{$searchQuery}%");
+                                 ->orWhere('location', 'like', "%{$searchQuery}%")
+                                 ->orWhere('title', 'like', "%{$translatedQuery}%")
+                                 ->orWhere('location', 'like', "%{$translatedQuery}%");
                     })
                     ->limit(8)
                     ->get();
@@ -105,6 +142,7 @@ class SearchController extends Controller
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('destinations')) {
                 $destinations = Destination::where('title', 'like', "%{$searchQuery}%")
+                    ->orWhere('title', 'like', "%{$translatedQuery}%")
                     ->limit(8)
                     ->get();
             }
