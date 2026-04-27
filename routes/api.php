@@ -162,6 +162,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„ÙˆØ¬Ù‡Ø§Øª Ø§Ù„Ø³ÙŠØ§Ø­ÙŠØ© (ÙÙ†Ø§Ø¯Ù‚ØŒ Ù…Ø·Ø§Ø¹Ù…ØŒ Ù…ØªØ§Ø­Ù...)
 Route::get('/destinations', [DestinationController::class, 'index']);
+// Checkout OTP Routes
+Route::post('/checkout/send-otp', [\App\Http\Controllers\PaymentController::class, 'sendCheckoutOTP']);
+Route::post('/checkout/verify-otp', [\App\Http\Controllers\PaymentController::class, 'verifyCheckoutOTP']);
 Route::get('/destinations/search', [DestinationController::class, 'search']);
 
 // ==========================================
