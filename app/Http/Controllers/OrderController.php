@@ -76,9 +76,27 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Generate and send PDF Invoice
+            try {
+                $order->load(['items.product', 'user']);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.invoice', ['order' => $order]);
+                
+                \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($order, $pdf) {
+                    $email = $order->user ? $order->user->email : 'test@example.com';
+                    $message->to($email)
+                            ->subject('Your Kemet Invoice #' . $order->id)
+                            ->html('<p>Thank you for your order! Please find your official invoice attached.</p>')
+                            ->attachData($pdf->output(), 'Kemet_Invoice_' . $order->id . '.pdf', [
+                                'mime' => 'application/pdf',
+                            ]);
+                });
+            } catch (\Exception $e) {
+                \Log::error("Failed to generate/send invoice email: " . $e->getMessage());
+            }
+
             return response()->json([
                 'message' => 'Order placed successfully',
-                'order' => $order->load('items')
+                'order' => $order
             ], 201);
             
         } catch (\Exception $e) {

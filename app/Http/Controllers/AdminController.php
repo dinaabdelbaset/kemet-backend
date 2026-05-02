@@ -115,6 +115,39 @@ class AdminController extends Controller
         return response()->json(['message' => 'User not found'], 404);
     }
 
+    public function getUserNotes($id)
+    {
+        $user = User::with('notes')->find($id);
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
+        return response()->json($user->notes()->orderBy('created_at', 'desc')->get());
+    }
+
+    public function getUserBookings($id)
+    {
+        $user = User::with('bookings')->find($id);
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
+        return response()->json($user->bookings()->orderBy('created_at', 'desc')->get());
+    }
+
+    public function addUserNote(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
+
+        $request->validate([
+            'content' => 'required|string',
+            'type' => 'nullable|string'
+        ]);
+
+        $note = $user->notes()->create([
+            'content' => $request->content,
+            'type' => $request->type ?? 'note',
+            'admin_name' => 'Admin' // Assuming single admin or get from auth
+        ]);
+
+        return response()->json($note, 201);
+    }
+
     public function bookings()
     {
         $settingsPath = storage_path('app/settings.json');

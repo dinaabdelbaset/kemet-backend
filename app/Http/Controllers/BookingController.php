@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingConfirmed;
 use App\Mail\AdminBookingAlert;
 use App\Services\WhatsAppService;
+use App\Models\CustomNotification;
 
 class BookingController extends Controller
 {
@@ -171,6 +172,26 @@ class BookingController extends Controller
             // 3. Send WhatsApp Notification to Admins
             $whatsappService = new WhatsAppService();
             $whatsappService->sendAdminAlert($bookingIdFormatted, $booking->total_price);
+
+            // 4. Create In-App Notification for User
+            CustomNotification::create([
+                'user_id' => $user->id,
+                'type' => 'booking',
+                'title' => 'تم تأكيد حجزك بنجاح! 🎉',
+                'message' => "لقد تم تأكيد حجزك رقم {$bookingIdFormatted}. نشكرك لاختيارك منصة Kemet!",
+                'is_read' => false
+            ]);
+
+            // 5. Create Points Notification
+            if ($pointsEarned > 0) {
+                CustomNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'offer',
+                    'title' => 'نقاط مكافآت جديدة! 🎁',
+                    'message' => "لقد اكتسبت {$pointsEarned} نقطة من حجزك الأخير. يمكنك استخدامها للحصول على خصومات رائعة.",
+                    'is_read' => false
+                ]);
+            }
         } catch (\Exception $e) {
             // Log the error but don't stop the booking process if emails fail
             \Illuminate\Support\Facades\Log::error("Failed to send booking notifications: " . $e->getMessage());
@@ -194,6 +215,15 @@ class BookingController extends Controller
                         
         $booking->status = 'cancelled';
         $booking->save();
+
+        // Create In-App Notification for Cancellation
+        CustomNotification::create([
+            'user_id' => $request->user()->id,
+            'type' => 'system',
+            'title' => 'تم إلغاء الحجز ❌',
+            'message' => "تم إلغاء الحجز الخاص بك بنجاح. سيتم استرداد المبلغ إلى حسابك قريباً.",
+            'is_read' => false
+        ]);
 
         return response()->json([
             'success' => true,

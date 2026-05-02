@@ -49,6 +49,9 @@ Route::prefix('admin')->group(function () {
     Route::get('/users', [AdminController::class, 'users']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/users/{id}/notes', [AdminController::class, 'getUserNotes']);
+    Route::post('/users/{id}/notes', [AdminController::class, 'addUserNote']);
+    Route::get('/users/{id}/bookings', [AdminController::class, 'getUserBookings']);
     
     Route::get('/bookings', [AdminController::class, 'bookings']);
     Route::put('/bookings/{id}', [AdminController::class, 'updateBooking']);
@@ -163,8 +166,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„ÙˆØ¬Ù‡Ø§Øª Ø§Ù„Ø³ÙŠØ§Ø­ÙŠØ© (ÙÙ†Ø§Ø¯Ù‚ØŒ Ù…Ø·Ø§Ø¹Ù…ØŒ Ù…ØªØ§Ø­Ù...)
 Route::get('/destinations', [DestinationController::class, 'index']);
 // Checkout OTP Routes
-Route::post('/checkout/send-otp', [\App\Http\Controllers\PaymentController::class, 'sendCheckoutOTP']);
-Route::post('/checkout/verify-otp', [\App\Http\Controllers\PaymentController::class, 'verifyCheckoutOTP']);
+Route::post('/checkout/send-otp', [PaymentController::class, 'sendCheckoutOTP']);
+Route::post('/checkout/verify-otp', [PaymentController::class, 'verifyCheckoutOTP']);
 Route::get('/destinations/search', [DestinationController::class, 'search']);
 
 // ==========================================
@@ -332,6 +335,7 @@ Route::get('/restore-original-images', function () {
     $tc = 0;
     \App\Models\Tour::chunk(100, function ($tours) use ($tourKeywords, $tourFallbacks, &$tc, &$updated) {
         foreach ($tours as $tour) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $tour */
             $img = null;
             foreach ($tourKeywords as $kw => $path) {
                 if (str_contains($tour->title, $kw)) { $img = $path; break; }
@@ -369,6 +373,7 @@ Route::get('/restore-original-images', function () {
     $sc = 0;
     \App\Models\Safari::chunk(100, function ($safaris) use ($safariKeywords, $safariFallbacks, &$sc, &$updated) {
         foreach ($safaris as $safari) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $safari */
             $img = null;
             $titleLc = $safari->title . ' ' . $safari->location;
             foreach ($safariKeywords as $kw => $path) {
@@ -408,6 +413,7 @@ Route::get('/restore-original-images', function () {
     $mc = 0;
     \App\Models\Museum::chunk(100, function ($museums) use ($museumKeywords, $museumFallbacks, &$mc, &$updated) {
         foreach ($museums as $museum) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $museum */
             $img = null;
             $titleLc = ($museum->name ?? '') . ' ' . ($museum->location ?? '');
             foreach ($museumKeywords as $kw => $path) {
@@ -452,6 +458,7 @@ Route::get('/restore-original-images', function () {
     $ev = 0;
     \App\Models\Event::chunk(100, function ($events) use ($eventKeywords, $eventFallbacks, &$ev, &$updated) {
         foreach ($events as $event) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $event */
             $img = null;
             $titleLc = ($event->title ?? '') . ' ' . ($event->category ?? '');
             foreach ($eventKeywords as $kw => $path) {
@@ -495,6 +502,7 @@ Route::get('/restore-original-images', function () {
     $bz = 0;
     \App\Models\Bazaar::chunk(100, function ($bazaars) use ($bazaarKeywords, $bazaarFallbacks, &$bz, &$updated) {
         foreach ($bazaars as $bazaar) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $bazaar */
             $img = null;
             $titleLc = ($bazaar->title ?? '') . ' ' . ($bazaar->location ?? '');
             foreach ($bazaarKeywords as $kw => $path) {
@@ -536,6 +544,7 @@ Route::get('/restore-original-images', function () {
     $hc = 0;
     \App\Models\Hotel::chunk(100, function ($hotels) use ($hotelByLoc, $allHotelImgs, &$hc, &$updated) {
         foreach ($hotels as $hotel) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $hotel */
             $loc = strtolower($hotel->location ?? '');
             $pool = null;
             foreach ($hotelByLoc as $kw => $paths) {
@@ -587,6 +596,7 @@ Route::get('/fix-all-images', function () {
     $tc = 0;
     \App\Models\Tour::chunk(100, function ($tours) use ($tourKeywords, $tourFallbacks, &$tc, &$updated) {
         foreach ($tours as $tour) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $tour */
             $titleLc = strtolower($tour->title . ' ' . $tour->location);
             $img = null;
             foreach ($tourKeywords as $kw => $path) {
@@ -621,6 +631,7 @@ Route::get('/fix-all-images', function () {
     $sc = 0;
     \App\Models\Safari::chunk(100, function ($safaris) use ($safariKeywords, $safariFallbacks, &$sc, &$updated) {
         foreach ($safaris as $safari) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $safari */
             $titleLc = strtolower($safari->title . ' ' . $safari->location);
             $img = null;
             foreach ($safariKeywords as $kw => $path) {
@@ -656,6 +667,7 @@ Route::get('/fix-all-images', function () {
     $mc = 0;
     \App\Models\Museum::chunk(100, function ($museums) use ($museumKeywords, $museumFallbacks, &$mc, &$updated) {
         foreach ($museums as $museum) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $museum */
             $titleLc = strtolower(($museum->name ?? '') . ' ' . ($museum->location ?? ''));
             $img = null;
             foreach ($museumKeywords as $kw => $path) {
@@ -692,6 +704,7 @@ Route::get('/fix-all-images', function () {
     $ev = 0;
     \App\Models\Event::chunk(100, function ($events) use ($eventKeywords, $eventFallbacks, &$ev, &$updated) {
         foreach ($events as $event) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $event */
             $titleLc = strtolower(($event->title ?? '') . ' ' . ($event->location ?? '') . ' ' . ($event->category ?? ''));
             $img = null;
             foreach ($eventKeywords as $kw => $path) {
@@ -726,6 +739,7 @@ Route::get('/fix-all-images', function () {
     $bz = 0;
     \App\Models\Bazaar::chunk(100, function ($bazaars) use ($bazaarKeywords, $bazaarFallbacks, &$bz, &$updated) {
         foreach ($bazaars as $bazaar) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $bazaar */
             $titleLc = strtolower(($bazaar->title ?? '') . ' ' . ($bazaar->location ?? ''));
             $img = null;
             foreach ($bazaarKeywords as $kw => $path) {
@@ -766,6 +780,7 @@ Route::get('/fix-all-images', function () {
     $hc = 0;
     \App\Models\Hotel::chunk(100, function ($hotels) use ($hotelByLoc, $allHotelImgs, &$hc, &$updated) {
         foreach ($hotels as $hotel) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $hotel */
             $loc = strtolower($hotel->location ?? '');
             $img = null;
             foreach ($hotelByLoc as $kw => $path) {
@@ -813,6 +828,7 @@ Route::get('/fix-hotel-images', function () {
     $count = 0;
     \App\Models\Hotel::chunk(100, function ($hotels) use ($images, &$count) {
         foreach ($hotels as $hotel) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $hotel */
             /** @var \App\Models\Hotel $hotel */
             // Only fix hotels with broken local paths
             if (str_starts_with($hotel->image ?? '', '/hotels/') || str_starts_with($hotel->image ?? '', '/')) {
@@ -906,6 +922,7 @@ Route::get('/setup-images', function () {
         $counters = ['cairo' => 0, 'coast' => 0, 'sahara' => 0, 'upper' => 0];
 
         foreach ($hotels as $hotel) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $hotel */
             /** @var \App\Models\Hotel $hotel */
             $loc = strtolower($hotel->location);
             $imagePath = '/hotels/nile.png'; 

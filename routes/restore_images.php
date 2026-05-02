@@ -36,6 +36,7 @@ Route::get('/restore-original-images', function () {
     $tc = 0;
     \App\Models\Tour::chunk(100, function ($tours) use ($tourKeywords, $tourFallbacks, &$tc, &$updated) {
         foreach ($tours as $tour) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $tour */
             $img = null;
             foreach ($tourKeywords as $kw => $path) {
                 if (str_contains($tour->title, $kw)) { $img = $path; break; }
@@ -73,6 +74,7 @@ Route::get('/restore-original-images', function () {
     $sc = 0;
     \App\Models\Safari::chunk(100, function ($safaris) use ($safariKeywords, $safariFallbacks, &$sc, &$updated) {
         foreach ($safaris as $safari) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $safari */
             $img = null;
             $titleLc = $safari->title . ' ' . $safari->location;
             foreach ($safariKeywords as $kw => $path) {
@@ -112,6 +114,7 @@ Route::get('/restore-original-images', function () {
     $mc = 0;
     \App\Models\Museum::chunk(100, function ($museums) use ($museumKeywords, $museumFallbacks, &$mc, &$updated) {
         foreach ($museums as $museum) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $museum */
             $img = null;
             $titleLc = ($museum->name ?? '') . ' ' . ($museum->location ?? '');
             foreach ($museumKeywords as $kw => $path) {
@@ -156,6 +159,7 @@ Route::get('/restore-original-images', function () {
     $ev = 0;
     \App\Models\Event::chunk(100, function ($events) use ($eventKeywords, $eventFallbacks, &$ev, &$updated) {
         foreach ($events as $event) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $event */
             $img = null;
             $titleLc = ($event->title ?? '') . ' ' . ($event->category ?? '');
             foreach ($eventKeywords as $kw => $path) {
@@ -199,6 +203,7 @@ Route::get('/restore-original-images', function () {
     $bz = 0;
     \App\Models\Bazaar::chunk(100, function ($bazaars) use ($bazaarKeywords, $bazaarFallbacks, &$bz, &$updated) {
         foreach ($bazaars as $bazaar) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $bazaar */
             $img = null;
             $titleLc = ($bazaar->title ?? '') . ' ' . ($bazaar->location ?? '');
             foreach ($bazaarKeywords as $kw => $path) {
@@ -240,6 +245,7 @@ Route::get('/restore-original-images', function () {
     $hc = 0;
     \App\Models\Hotel::chunk(100, function ($hotels) use ($hotelByLoc, $allHotelImgs, &$hc, &$updated) {
         foreach ($hotels as $hotel) {
+            /** @var \\Illuminate\\Database\\Eloquent\\Model $hotel */
             $loc = strtolower($hotel->location ?? '');
             $pool = null;
             foreach ($hotelByLoc as $kw => $paths) {
