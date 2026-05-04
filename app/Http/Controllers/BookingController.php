@@ -146,6 +146,42 @@ class BookingController extends Controller
         $booking = Booking::create($validated);
         $bookingIdFormatted = 'BKG-' . $booking->id;
 
+        // --- INVENTORY REDUCTION LOGIC ---
+        $itemType = strtolower($validated['item_type']);
+        $itemId = $validated['item_id'];
+        $modelClass = null;
+
+        if ($itemType === 'hotel') {
+            // For hotel, decrease a room count
+            $room = \App\Models\Room::where('hotel_id', $itemId)
+                        ->where('available_count', '>', 0)
+                        ->first();
+            if ($room) {
+                $room->available_count -= 1;
+                $room->save();
+            }
+        } else {
+            // Map item types to models
+            if ($itemType === 'tour' || $itemType === 'package') $modelClass = \App\Models\Tour::class;
+            elseif ($itemType === 'event') $modelClass = \App\Models\Event::class;
+            elseif ($itemType === 'safari') $modelClass = \App\Models\Safari::class;
+            elseif ($itemType === 'flight') $modelClass = \App\Models\Flight::class;
+            elseif ($itemType === 'museum') $modelClass = \App\Models\Museum::class;
+            elseif ($itemType === 'transport') $modelClass = \App\Models\Transportation::class;
+            elseif ($itemType === 'restaurant' || $itemType === 'meal' || str_contains($itemType, 'food')) $modelClass = \App\Models\Restaurant::class;
+            
+            if ($modelClass) {
+                $item = $modelClass::find($itemId);
+                if ($item && \Illuminate\Support\Facades\Schema::hasColumn((new $modelClass)->getTable(), 'available_count')) {
+                    if ($item->available_count > 0) {
+                        $item->available_count -= 1;
+                        $item->save();
+                    }
+                }
+            }
+        }
+        // ---------------------------------
+
         // Prepare data for the emails
         $emailData = [
             'booking_id' => $bookingIdFormatted,
