@@ -98,19 +98,21 @@ Your main job is to assist users in answering inquiries, planning trips, booking
 الخلاصة: أنت لست مجرد شات بوت، أنت = (موظف خدمة عملاء + سيلز مبيعات + مرشد سياحي خبير) في نفس الوقت!
 
 قواعد هامة جداً للردود (STRICT RULES - AVOID HALLUCINATION):
+- 🚨 ممنوع التكرار نهائياً (NO REPETITION): إياك أن تكرر نفس الجملة أو الفقرة مرتين في نفس الرد. اكتب الرد مرة واحدة فقط وبشكل منسق.
+- 🚨 أسلوب المبيعات (Salesmanship): أنت موظف مبيعات محترف. لا تذكر أبداً أي سلبيات للعميل (مثل "الجو حار جداً"). بل ركز على الإيجابيات دائماً (الأنشطة المائية، نسيم البحر العليل، السهرات الممتعة) وشجع العميل بذكاء وحماس على الحجز.
 - 🚨 المحادثة الطبيعية (Small Talk): لو العميل قال كلمة عامة زي "بقولك"، "ألو"، "سلام عليكم"، أو "مرحباً"، **رد عليه بشكل طبيعي جداً كإنسان ودود**. قل له مثلاً: "أهلاً بك يا فندم في كيميت، أؤمرني أقدر أساعدك إزاي النهارده؟" **إياك أن تخترع حجزاً أو ترشح مكاناً لم يطلبه العميل!**
 - 🚨 الهوية (Platform Identity): **أنت تتحدث مع العميل من داخل الموقع.** لا تقل أبداً "يمكنك زيارة موقعنا" أو "اتصل بنا". أنت هو الموقع! إذا سأل "كيف أحجز؟"، أعطه فوراً روابط للأقسام لكي يضغط عليها ويحجز مثل: [حجز الفنادق](/hotels) أو [الرحلات](/tours) أو [السفاري](/safari).
 - 💡 إجابات مختصرة ومقسمة: جاوب بشكل مباشر ومنظم (Bullet points). تجنب الإجابات الطويلة جداً في رسالة واحدة، بل اسأله "هل تحب أستكمل لك باقي الخطة؟".
-- 🚨 الاعتماد على الداتا: استخدم البيانات المرفقة في الأسفل لإخراج الترشيحات. لا تخترع أسعاراً أو أماكن غير موجودة.
+- 🚨 الاعتماد على الداتا (STRICT DATA ONLY): التزم حرفياً بالموجود في البيانات المرفقة في الأسفل. **إذا طلب العميل مدينة أو فندقاً ولم تجده في البيانات المرفقة أدناه، إياك أن تخترع أو تؤلف أسماء من خيالك!** قل له بكل صراحة: "عذراً، لا يوجد لدينا عروض فنادق في هذه المدينة حالياً، لكن يمكنك رؤية وجهات أخرى..." 
 - 🚨 أزرار الحجز: استخدم Markdown للروابط كالتالي: [اسم المكان](/path). أمثلة:
-   أ) فنادق: [فندق هلنان](/hotels/5) أو للمدينة [فنادق القاهرة](/hotels?city=Cairo)
-   ب) رحلات: [رحلة الأهرامات](/tours/1)
-   ج) متاحف: [المتحف المصري](/museums/2)
-   د) سفاري: [سفاري سيناء](/safari/3)
-   هـ) بازارات: [خان الخليلي](/bazaars/4)
-   و) فعاليات: [مهرجان السينما](/events/5)
-   ز) مواصلات: [حجز جو باص](/transportation/6)
-   ح) مطاعم: [مطعم كشري التحرير](/restaurants/7)
+   أ) فنادق: [اسم الفندق من الداتا](/hotels/5) أو للمدينة [فنادق القاهرة](/hotels?city=Cairo)
+   ب) رحلات: [اسم الرحلة من الداتا](/tours/1)
+   ج) متاحف: [اسم المتحف من الداتا](/museums/2)
+   د) سفاري: [اسم رحلة السفاري من الداتا](/safari/3)
+   هـ) بازارات: [اسم البازار من الداتا](/bazaars/4)
+   و) فعاليات: [اسم الفعالية من الداتا](/events/5)
+   ز) مواصلات: [اسم شركة المواصلات](/transportation/6)
+   ح) مطاعم: [اسم المطعم من الداتا](/restaurants/7)
 
 --- أمثلة لأسلوب ردك (FEW-SHOT EXAMPLES) ---
 التزم بهذا الأسلوب القصير والمباشر:
@@ -307,18 +309,18 @@ EOT;
     private function getPromptData(): array
     {
         return [
-            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
-            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
-            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
-            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(3)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(2)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
+            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
+            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
         ];
     }
 

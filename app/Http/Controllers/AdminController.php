@@ -62,9 +62,20 @@ class AdminController extends Controller
         ]);
     }
 
+    private function handleImageUpload(Request $request, $data) {
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/uploads'), $filename);
+            $data['image'] = '/images/uploads/' . $filename;
+        }
+        return $data;
+    }
+
     public function updateSettings(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -94,6 +105,7 @@ class AdminController extends Controller
         $user = User::find($id);
         if (!$user) return response()->json(['message' => 'Not found'], 404);
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -140,8 +152,8 @@ class AdminController extends Controller
         ]);
 
         $note = $user->notes()->create([
-            'content' => $request->content,
-            'type' => $request->type ?? 'note',
+            'content' => $request->input('content'),
+            'type' => $request->input('type') ?? 'note',
             'admin_name' => 'Admin' // Assuming single admin or get from auth
         ]);
 
@@ -177,6 +189,7 @@ class AdminController extends Controller
         if (!$booking) return response()->json(['message' => 'Not found'], 404);
         
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -203,18 +216,20 @@ class AdminController extends Controller
         return response()->json(\App\Models\Room::with('hotel')->orderBy('id', 'desc')->get());
     }
 
-    public function storeRoom(\Illuminate\Http\Request $request)
+    public function storeRoom(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item = \App\Models\Room::create($data);
         return response()->json($item, 201);
     }
 
-    public function updateRoom(\Illuminate\Http\Request $request, $id)
+    public function updateRoom(Request $request, $id)
     {
         $item = \App\Models\Room::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item->update($data);
         return response()->json($item);
     }
@@ -237,6 +252,7 @@ class AdminController extends Controller
     public function storeHotel(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -255,6 +271,7 @@ class AdminController extends Controller
         if (!$hotel) return response()->json(['message' => 'Hotel not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -285,6 +302,7 @@ class AdminController extends Controller
     public function storeTour(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -303,6 +321,7 @@ class AdminController extends Controller
         if (!$tour) return response()->json(['message' => 'Tour not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -333,6 +352,7 @@ class AdminController extends Controller
     public function storeSafari(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -351,6 +371,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -381,6 +402,7 @@ class AdminController extends Controller
     public function storeRestaurant(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -399,6 +421,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -429,6 +452,7 @@ class AdminController extends Controller
     public function storeMuseum(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -447,6 +471,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -477,6 +502,7 @@ class AdminController extends Controller
     public function storeEvent(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -495,6 +521,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -525,6 +552,7 @@ class AdminController extends Controller
     public function storeBazaar(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -543,6 +571,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -573,6 +602,7 @@ class AdminController extends Controller
     public function storeTransportation(Request $request)
     {
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -591,6 +621,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         if (isset($data['name'])) { 
             $data['title'] = $data['name']; 
             unset($data['name']); 
@@ -627,6 +658,7 @@ class AdminController extends Controller
         if (!class_exists('\App\Models\TravelPackage')) return response()->json(['message' => 'Model not found'], 404);
         
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         
         $item = \App\Models\TravelPackage::create($data);
         return response()->json($item, 201);
@@ -639,6 +671,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item->update($data);
         return response()->json($item);
     }
@@ -667,6 +700,7 @@ class AdminController extends Controller
         if (!class_exists('\App\Models\Review')) return response()->json(['message' => 'Model not found'], 404);
         
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         
         $item = \App\Models\Review::create($data);
         return response()->json($item, 201);
@@ -679,6 +713,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item->update($data);
         return response()->json($item);
     }
@@ -707,6 +742,7 @@ class AdminController extends Controller
         if (!class_exists('\App\Models\Deal')) return response()->json(['message' => 'Model not found'], 404);
         
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         
         $item = \App\Models\Deal::create($data);
         return response()->json($item, 201);
@@ -719,6 +755,7 @@ class AdminController extends Controller
         if (!$item) return response()->json(['message' => 'Not found'], 404);
 
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item->update($data);
         return response()->json($item);
     }
@@ -746,6 +783,7 @@ class AdminController extends Controller
     {
         if (!class_exists('\App\Models\Flight')) return response()->json(['message' => 'Model not found'], 404);
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item = \App\Models\Flight::create($data);
         return response()->json($item, 201);
     }
@@ -756,6 +794,7 @@ class AdminController extends Controller
         $item = \App\Models\Flight::find($id);
         if (!$item) return response()->json(['message' => 'Not found'], 404);
         $data = $request->all();
+        $data = $this->handleImageUpload($request, $data);
         $item->update($data);
         return response()->json($item);
     }
