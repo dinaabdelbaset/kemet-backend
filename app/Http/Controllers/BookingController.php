@@ -6,7 +6,6 @@ use App\Models\Booking;
 use App\Models\Destination;
 use App\Models\Tour;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\BookingConfirmed;
 use App\Mail\AdminBookingAlert;
