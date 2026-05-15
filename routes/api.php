@@ -11,6 +11,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\VisionController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HotelController;
 use App\Http\Controllers\BlogController;
@@ -200,6 +201,7 @@ Route::get('/reviews/{item_type}/{item_id}', [ReviewController::class, 'index'])
 // Ù…Ø³Ø§Ø± Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ø­Ù‚ÙŠÙ‚ÙŠ Ø§Ù„Ù…Ø¯Ø¹ÙˆÙ… Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (Gemini / Groq LLM)
 Route::post('/chat', [App\Http\Controllers\ChatbotController::class, 'ask']);
 Route::get('/chat/history', [App\Http\Controllers\ChatbotController::class, 'history']);
+Route::post('/vision/analyze', [VisionController::class, 'analyze']);
 
 Route::get('/all-data', function () {
     return [

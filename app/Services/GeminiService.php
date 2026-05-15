@@ -51,4 +51,41 @@ class GeminiService
             return "System Exception: " . $e->getMessage();
         }
     }
+    public function analyzeImage(string $base64Image, string $mimeType, string $prompt)
+    {
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->apiKey;
+
+        $payload = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt],
+                        [
+                            'inline_data' => [
+                                'mime_type' => $mimeType,
+                                'data' => $base64Image
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        try {
+            $response = Http::withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($url, $payload);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                    return $data['candidates'][0]['content']['parts'][0]['text'];
+                }
+                return "Gemini Structure Error: " . json_encode($data);
+            }
+            return "Gemini Connection Error (HTTP " . $response->status() . "): " . $response->body();
+        } catch (\Exception $e) {
+            return "System Exception: " . $e->getMessage();
+        }
+    }
 }
