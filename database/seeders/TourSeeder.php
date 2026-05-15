@@ -57,7 +57,7 @@ class TourSeeder extends Seeder
                 'description' => 'Race through golden sand dunes on ATVs, watch a stunning sunset, and enjoy a Bedouin BBQ dinner.',
             ],
             [
-                'title' => 'Cairo Food Tour Experience',
+                'title' => 'Authentic Cairo Street Food Tour',
                 'location' => 'Cairo',
                 'image' => '/images/tour-cairo-food.png',
                 'rating' => 4.8,
