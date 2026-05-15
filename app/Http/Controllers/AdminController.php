@@ -67,7 +67,10 @@ class AdminController extends Controller
             $file = $request->file('image_file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('images/uploads'), $filename);
-            $data['image'] = '/images/uploads/' . $filename;
+            $data['image'] = url('/images/uploads/' . $filename);
+        }
+        if (!isset($data['status'])) {
+            $data['status'] = 'approved';
         }
         return $data;
     }
