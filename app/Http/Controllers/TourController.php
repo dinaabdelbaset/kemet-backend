@@ -10,7 +10,7 @@ class TourController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Tour::query();
+            $query = Tour::query()->orderBy('id', 'desc');
 
             if ($request->has('type')) {
                 $query->where('type', $request->type);

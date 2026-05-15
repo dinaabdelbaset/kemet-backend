@@ -9,7 +9,7 @@ class TravelPackageController extends Controller
 {
     public function index()
     {
-        return response()->json(TravelPackage::all());
+        return response()->json(TravelPackage::orderBy('id', 'desc')->get());
     }
 
     public function show($id)

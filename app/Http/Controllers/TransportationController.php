@@ -14,7 +14,7 @@ class TransportationController extends Controller
             $this->seedTransportation();
         }
 
-        $query = Transportation::query();
+        $query = Transportation::query()->orderBy('id', 'desc');
 
         if ($request->has('type') && $request->type) {
             $query->where('type', $request->type);

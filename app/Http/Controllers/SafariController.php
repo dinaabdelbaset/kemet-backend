@@ -13,7 +13,7 @@ class SafariController extends Controller
             $this->seedSafaris();
         }
 
-        return response()->json(Safari::all());
+        return response()->json(Safari::orderBy('id', 'desc')->get());
     }
 
     public function show($id)

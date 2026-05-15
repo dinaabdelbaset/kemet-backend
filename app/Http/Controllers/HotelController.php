@@ -19,7 +19,7 @@ class HotelController extends Controller
             $seeder->run();
         }
 
-        $query = Hotel::with('rooms')->where('status', 'approved');
+        $query = Hotel::with('rooms')->where('status', 'approved')->orderBy('id', 'desc');
 
         if ($request->has('location') && $request->location) {
             $query->where('location', 'like', '%' . $request->location . '%');

@@ -9,7 +9,7 @@ class RestaurantController extends Controller
 {
     public function index()
     {
-        return response()->json(Restaurant::where('status', 'approved')->get());
+        return response()->json(Restaurant::where('status', 'approved')->orderBy('id', 'desc')->get());
     }
 
     public function show($id)
