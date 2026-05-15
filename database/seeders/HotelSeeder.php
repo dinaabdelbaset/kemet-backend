@@ -175,7 +175,7 @@ class HotelSeeder extends Seeder
                     'address' => 'Downtown, ' . $city . ', Egypt',
                     'rating' => mt_rand(40, 50) / 10,
                     'reviews_count' => rand(100, 1500),
-                    'price_starts_from' => rand(80, 500),
+                    'price_starts_from' => rand(4000, 25000),
                     'image' => $hotelImage,
                     'gallery' => [
                         $images[($index + 1) % count($images)],
