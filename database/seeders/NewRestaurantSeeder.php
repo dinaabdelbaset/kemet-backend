@@ -75,6 +75,7 @@ class NewRestaurantSeeder extends Seeder
                 'opening_hours' => $r['opening_hours'],
                 'address' => 'Local Address',
                 'features' => json_encode(['Wifi', 'Parking', 'Family Friendly']),
+                'status' => 'approved',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

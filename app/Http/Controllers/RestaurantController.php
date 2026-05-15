@@ -9,8 +9,7 @@ class RestaurantController extends Controller
 {
     public function index()
     {
-
-        return response()->json(Restaurant::all());
+        return response()->json(Restaurant::where('status', 'approved')->get());
     }
 
     public function show($id)
@@ -20,7 +19,5 @@ class RestaurantController extends Controller
             return response()->json(['message' => 'Restaurant not found'], 404);
         }
         return response()->json($restaurant);
-    }
-
     }
 }
