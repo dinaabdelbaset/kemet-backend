@@ -38,13 +38,15 @@ class ChatbotController extends Controller
             $chatSession->update(['user_id' => $user->id]);
         }
 
-        // Save User Message
-        \App\Models\ChatMessage::create([
-            'user_id' => $user ? $user->id : null,
-            'session_id' => $sessionToken,
-            'role' => 'user',
-            'content' => $userMessage
-        ]);
+        // Save User Message only if it's not a timeout automated retry
+        if (!$request->input('is_timeout')) {
+            \App\Models\ChatMessage::create([
+                'user_id' => $user ? $user->id : null,
+                'session_id' => $sessionToken,
+                'role' => 'user',
+                'content' => $userMessage
+            ]);
+        }
 
         $cleanMessage = mb_strtolower(trim($userMessage));
 
