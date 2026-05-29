@@ -12,7 +12,8 @@ class Restaurant extends Model
     protected $fillable = [
         'name', 'cuisine', 'location', 'address', 'description',
         'image', 'gallery', 'price_range_min', 'price_range_max',
-        'rating', 'reviews_count', 'opening_hours', 'features'
+        'rating', 'reviews_count', 'opening_hours', 'features',
+        'status', 'action_type', 'rejection_reason'
     ];
 
     protected $casts = [

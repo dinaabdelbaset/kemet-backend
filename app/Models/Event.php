@@ -11,7 +11,8 @@ class Event extends Model
 
     protected $fillable = [
         'title', 'description', 'location', 'venue', 'date',
-        'time', 'price', 'category', 'image', 'gallery', 'rating'
+        'time', 'price', 'category', 'image', 'gallery', 'rating',
+        'status', 'action_type', 'rejection_reason'
     ];
 
     protected $casts = [

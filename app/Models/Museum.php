@@ -12,7 +12,8 @@ class Museum extends Model
     protected $fillable = [
         'name', 'location', 'address', 'description', 'image',
         'gallery', 'ticket_price', 'opening_hours', 'rating',
-        'reviews_count', 'highlights'
+        'reviews_count', 'highlights',
+        'status', 'action_type', 'rejection_reason'
     ];
 
     protected $casts = [

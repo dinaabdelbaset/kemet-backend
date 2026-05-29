@@ -10,7 +10,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\KemetChatbotController;
 use App\Http\Controllers\VisionController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HotelController;
@@ -149,6 +149,8 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+Route::get('/flights/{flightId}/occupied-seats', [BookingController::class, 'occupiedSeatsForFlight']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
@@ -158,7 +160,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/my-orders', [OrderController::class, 'userOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
     // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ù…Ø®ØµØµØ© Ù„Ù„Ø­Ø³Ø§Ø¨Ø§Øª
-    Route::post('/chat/auth', [App\Http\Controllers\ChatbotController::class, 'askAuth']);
+    Route::post('/chat/auth', [App\Http\Controllers\KemetChatbotController::class, 'askAuth']);
 
     // Ù…Ø³Ø§Ø±Ø§Øª Ø¥Ø¶Ø§ÙØ© Ø§Ù„ØªÙ‚ÙŠÙŠÙ…Ø§Øª
     Route::post('/reviews/{item_type}/{item_id}', [ReviewController::class, 'store']);
@@ -199,8 +201,8 @@ Route::get('/reviews', [ReviewController::class, 'allReviews']);
 Route::get('/reviews/{item_type}/{item_id}', [ReviewController::class, 'index']);
 
 // Ù…Ø³Ø§Ø± Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ø­Ù‚ÙŠÙ‚ÙŠ Ø§Ù„Ù…Ø¯Ø¹ÙˆÙ… Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (Gemini / Groq LLM)
-Route::post('/chat', [App\Http\Controllers\ChatbotController::class, 'ask']);
-Route::get('/chat/history', [App\Http\Controllers\ChatbotController::class, 'history']);
+Route::post('/chat', [App\Http\Controllers\KemetChatbotController::class, 'ask']);
+Route::get('/chat/history', [App\Http\Controllers\KemetChatbotController::class, 'history']);
 Route::post('/vision/analyze', [VisionController::class, 'analyze']);
 
 Route::get('/all-data', function () {
@@ -216,7 +218,7 @@ Route::get('/all-data', function () {
 });
 
 // ===== Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø´Ø§Øª Ø¨ÙˆØª Ø§Ù„Ø­ÙŠØ© Ù…Ù† Ø§Ù„Ø¯Ø§ØªØ§ Ø¨ÙŠØ² =====
-Route::get('/chatbot-context', [ChatbotController::class, 'getContext']);
+Route::get('/chatbot-context', [KemetChatbotController::class, 'getContext']);
 
 // ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ù…Ø¯ÙˆÙ†Ø© ÙˆØ§Ù„Ù…Ù‚Ø§Ù„Ø§Øª (Blogs / Travel Guides) =====
 Route::get('/blogs', [BlogController::class, 'index']);

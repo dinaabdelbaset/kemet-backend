@@ -11,7 +11,8 @@ class Safari extends Model
 
     protected $fillable = [
         'title', 'description', 'location', 'duration', 'price',
-        'image', 'gallery', 'rating', 'includes', 'difficulty'
+        'image', 'gallery', 'rating', 'includes', 'difficulty',
+        'status', 'action_type', 'rejection_reason'
     ];
 
     protected $casts = [

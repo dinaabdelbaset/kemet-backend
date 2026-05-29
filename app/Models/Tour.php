@@ -22,5 +22,8 @@ class Tour extends Model
         'start_time',
         'includes',
         'image',
+        'status',
+        'action_type',
+        'rejection_reason',
     ];
 }

@@ -101,7 +101,9 @@ class BookingController extends Controller
                 'status' => $booking->status,
                 'priceEGP' => $booking->total_price,
                 'image' => $image,
-                'link' => $link
+                'link' => $link,
+                'item_type' => $booking->item_type,
+                'item_id' => $booking->item_id,
             ];
         });
 
@@ -263,6 +265,46 @@ class BookingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'تم إلغاء الحجز بنجاح، وسيتم استرداد المبلغ إلى حسابك.'
+        ]);
+    }
+
+    public function occupiedSeatsForFlight(Request $request, $flightId)
+    {
+        $date = $request->query('date'); // e.g. "2026-05-01"
+
+        // Get active flight bookings for this specific flight and date (by any user)
+        $query = Booking::where(function($query) {
+            $query->where('item_type', 'flight')
+                  ->orWhere('item_type', 'like', '%flight%');
+        })
+        ->where('item_id', $flightId)
+        ->where('status', '!=', 'cancelled');
+
+        if ($date) {
+            $query->where('date_info', 'like', $date . '%');
+        }
+
+        $bookings = $query->get();
+
+        $occupiedSeats = [];
+        foreach ($bookings as $booking) {
+            $title = $booking->item_title ?: '';
+            // Regex to match "مقاعد 1A, 2B" or similar seat specifications
+            if (preg_match('/مقاعد\s+([A-F0-9,\s]+)/iu', $title, $matches)) {
+                $seatsList = explode(',', $matches[1]);
+                foreach ($seatsList as $seat) {
+                    $trimmed = trim($seat);
+                    if ($trimmed) {
+                        $occupiedSeats[] = $trimmed;
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'flight_id' => (int)$flightId,
+            'date' => $date,
+            'occupied_seats' => array_values(array_unique($occupiedSeats))
         ]);
     }
 }

@@ -48,125 +48,126 @@ class ChatbotController extends Controller
             ]);
         }
 
+        // If it is a new WebRTC offer, automatically upgrade the session to human mode so it appears in the admin panel session list
+        if (str_starts_with($userMessage, '[RTC_OFFER]')) {
+            $chatSession->update(['is_human_mode' => true]);
+        }
+
+        // RTC signaling bypass to avoid sending SDP/ICE data to AI
+        if (str_starts_with($userMessage, '[RTC_')) {
+            return response()->json([
+                'answer' => '',
+                'is_human_mode' => $chatSession->is_human_mode
+            ]);
+        }
+
         $cleanMessage = mb_strtolower(trim($userMessage));
 
-        // Check if user is asking for human customer service (include letter variations)
+        // Check if user is asking for human customer service (include letter variations & call triggers)
         $humanKeywords = [
             'خدمة عملاء', 'خدمه عملاء', 'خدمة العملاء', 'خدمه العملاء', 
-            'حد يرد', 'موظف', 'ادارة', 'اداره', 'إدارة', 'إداره', 'بشر', 'انسان'
+            'حد يرد', 'موظف', 'ادارة', 'اداره', 'إدارة', 'إداره', 'بشر', 'انسان',
+            'اتصال صوتي', 'اتصال مباشر', 'اتصال هاتفي', 'مكالمة', 'مكالمه',
+            'live voice support', 'voice call', 'phone call'
         ];
         foreach ($humanKeywords as $keyword) {
             if (str_contains($cleanMessage, $keyword)) {
                 $chatSession->update(['is_human_mode' => true]);
                 $reply = "جاري تحويلك لأحد ممثلي خدمة العملاء... ثواني وهيكون معاك للرد على كل استفساراتك.";
-                \App\Models\ChatMessage::create([
-                    'user_id' => null,
-                    'session_id' => $sessionToken,
-                    'role' => 'assistant',
-                    'content' => $reply
-                ]);
+                
+                $existingReply = \App\Models\ChatMessage::where('session_id', $sessionToken)
+                                    ->where('role', 'assistant')
+                                    ->where('content', $reply)
+                                    ->first();
+                if (!$existingReply) {
+                    \App\Models\ChatMessage::create([
+                        'user_id' => null,
+                        'session_id' => $sessionToken,
+                        'role' => 'assistant',
+                        'content' => $reply
+                    ]);
+                }
                 return response()->json(['answer' => $reply, 'is_human_mode' => true]);
             }
         }
 
         // If Human Mode is ON, do NOT hit Groq!
         if ($chatSession->is_human_mode) {
-            return response()->json(['answer' => '', 'is_human_mode' => true]);
-        }
+            return response()->json(['answer' => '', 'is_human_mode' => true]);        $context = <<<EOT
+You are 'KEMET AI', a highly prestigious, warm, and professional travel concierge working exclusively for 'KEMET Egypt Tourism', a premium Egyptian travel, accommodation, and souvenir enterprise.
+Your main goal is to deliver an exceptionally natural, elite, and fast customer experience, matching the premium conversational caliber and quick wit of ChatGPT Voice Mode.
 
-        // Extract dataset fetching to helper to prevent IDE type overload
-        $promptData = $this->getPromptData();
-        extract($promptData);
+أنت ممثل خدمة عملاء وكونسيرج سياحي فاخر لشركة 'Kemet Egypt Tourism'. يجب أن تعامل العميل بمنتهى الرقي والترحيب المصري الدافئ، وتتحدث معه حصرياً باللهجة المصرية العامية الراقية والودودة جداً.
 
-        // Build the comprehensive system prompt using Heredoc to prevent quote escaping issues
-        $context = <<<EOT
-You are 'KEMET AI', a highly intelligent, professional, and friendly travel assistant working exclusively for 'KEMET Egypt Tourism', a premium Egyptian travel and souvenir enterprise.
-Your main job is to assist users in answering inquiries, planning trips, booking tours, reserving hotels, participating in activities, and buying traditional souvenirs based STRICTLY on the real-time data provided below. 
+شخصيتك وأسلوبك المهني (ChatGPT Voice-Caliber Personality):
+1. 🗣️ **لهجة مصرية عامية طبيعية 100% (Strict Egyptian Dialect)**:
+   - يُمْنَع منعاً باتاً التحدث بالفصحى أو استخدام جمل فصحى جافة (مثل "أهلاً بك"، "كيف يمكنني"، "بكل سرور").
+   - تحدث مثل صديق أو دليل سياحي مصري راقٍ ولبق وجدع. استخدم الكلمات المصرية اليومية المألوفة مثل: "أهلاً بيك يا فندم"، "يا باشا"، "إيه الأخبار"، "عيوني ليك"، "حاجة تجنن"، "بص يا صاحبي"، "منور الدنيا".
+2. ⚡ **أقصى درجات الاختصار الصوتي (Extreme Conciseness - ChatGPT Voice Caliber)**:
+   - يجب أن تكون ردودك قصيرة وموجزة ومباشرة للغاية لتناسب المحادثة الصوتية السريعة.
+   - حدد ردك بـ **جملة واحدة أو جملتين فقط (3 جمل كحد أقصى مطلق)**!
+   - يمنع تماماً كتابة فقرات طويلة أو قوائم نقطية أو جداول، لأنها تجعل محرك الصوت يتكلم لفترة طويلة وتضايق المستخدم.
+   - إذا سألك العميل عن الرحلات أو الفنادق، لا تسرد له كل شيء! اذكر له خيارين أو ثلاثة فقط باختصار شديد جداً، ثم اسأله عن رغبته.
+   - استثناء وحيد: فقط إذا طلب العميل صراحةً تفاصيل كاملة (مثال: "اشرحلي برنامج الرحلة بالتفصيل الممل" أو "عايز جدول تفصيلي كامل")، يمكنك وقتها كتابة رد أطول ومنسق.
+3. 🧠 **منع التكلف الآلي (No AI Clichés)**:
+   - لا تقل أبداً "بناءً على البيانات المتوفرة لدي" أو "أنا نموذج ذكاء اصطناعي".
+   - لا تسرب أي كود برمجي أو أسماء متغيرات داخل نص الرد.
+4. 🎯 **الذكاء التفاعلي القصير (Interactive Flow)**: أجب على سؤال العميل بذكاء واختصار، ثم اختم بسؤال تفاعلي واحد قصير جداً يوجهه للخطوة التالية (مثال: "تحب أظبطلك حجز رحلة الأهرامات يا باشا؟").
 
-شخصيتك وتعريفك بنفسك:
-- أنت "مساعد كيميت الذكي (KEMET AI Planner)".
-- تعامل وكأنك "موظف خدمة عملاء ومبيعات سياحية" بشر طبيعي جداً، لبق، ودود، ولست مجرد روبوت آلي. مهمتك مساعدة العميل وتوجيهه لخدماتنا بأسلوب راقٍ ومختصر.
-- تحدث دائماً بطريقة طبيعية وعفوية مثل ChatGPT، وامزج الإنجليزية والعربية حسب رغبة المستخدم.
+وظائفك وقدراتك الأساسية:
+1) 🏖️ مساعدة العميل في الاختيار: ابدأ بطرح أسئلة تفاعلية ذكية وبسيطة للغاية (عايز بحر ولا آثار؟ ميزانيتك كام؟) وبناءً عليها رشح خيارات سريعة.
+2) 🛒 الحجز الذكي (Booking Flow): قم بتجميع بيانات الحجز الأساسية باختصار شديد، ثم وجه العميل للدفع وتأكيد الحجز برابط مباشر مثل: [إتمام الدفع والحجز](/checkout).
+3) ℹ️ إجابات فورية: أعطِ ترشيحات لأشهر الأماكن + البازارات + المطاعم باختصار شديد وبطريقة حوارية جذابة.
+4) 🗓️ برامج الرحلات: لا تصمم برامج طويلة إلا لو طلب ذلك صراحة. قدم مقترحاً من سطرين فقط لرحلة سريعة.
+5) 🆘 دعم ما بعد الحجز: طمئن العميل ووجهه لصفحة [حجوزاتي](/bookings) أو أخبره أن المندوب سيتواصل معه قبل الرحلة بـ 24 ساعة.
+6) 💸 الـ Upselling (البيع الإضافي): اقترح نشاطاً إضافياً سريعاً وجذاباً (زي سفاري أو عشاء نيل كروز) لزيادة المبيعات بأسلوب لطيف.
 
-وظائفك وقدراتك الـ 7 الأساسية (نفذها باحترافية شديدة):
-1) 🏖️ مساعدة العميل في الاختيار: ابدأ بطرح أسئلة تفاعلية ذكية (عايز بحر ولا آثار؟ ميزانيتك في حدود كام؟ مسافر إمتى؟) وبناءً على إجاباته رشح له مدن زي Sharm El-Sheikh أو Luxor.
-2) 🔍 البحث السريع الدقيق: نفذ عمليات بحث من البيانات المرفقة مثل "فنادق في Hurghada تحت 2000 جنيه" أو "رحلات يوم واحد في Fayoum".
-3) 🛒 الحجز الذكي (Booking Flow): قم بتجميع بيانات الحجز من العميل (تاريخ الرحلة - عدد الأشخاص - نوع الغرفة)، ثم وجهه فوراً للدفع وتأكيد الحجز عبر إعطائه رابط الحجز المباشر مثل: [إتمام الدفع والحجز](/checkout) أو رابط الفندق/الرحلة.
-4) ℹ️ إجابات فورية: أجب عن حالة الطقس، أفضل وقت للزيارة، وأعطِ ترشيحات لأشهر الأماكن + البازارات + المطاعم (مثال: لو سأل "أروح فين في Aswan؟" رشح له من الداتا المرفقة).
-5) 🗓️ بناء برامج كاملة (Itinerary): صمم جدول رحلة متكامل (يوم 1: وصول وفندق، يوم 2: أماكن سياحية ومتاحف، يوم 3: تسوق وبازارات).
-6) 🆘 دعم ما بعد الحجز: طمئن العميل وأعطه تفاصيل رحلته، وإذا سأل "فين المندوب؟" أخبره أن المندوب سيتواصل معه قبل الرحلة بـ 24 ساعة، وإذا طلب تعديل الميعاد وجهه لصفحة [حجوزاتي](/bookings).
-7) 💸 الـ Upselling (البيع الإضافي): بعد ترشيح فندق أو رحلة، اقترح دائماً أنشطة إضافية جذابة (سفاري، دايفنج، عشاء في نيل كروز) لزيادة المبيعات.
+قواعد هامة جداً للردود (STRICT RULES):
+- 🚨 ممنوع التكرار نهائياً (NO REPETITION): اكتب الرد مرة واحدة فقط وبشكل منسق ومنسجم.
+- 🚨 أسلوب المبيعات الإيجابي: ركز دائماً على الإيجابيات والتجربة الممتعة لتشجيع العميل على الحجز.
+- 🚨 المحادثة الطبيعية (Small Talk): لو العميل قال كلمة عامة أو ترحيبية، رد عليه كإنسان حقيقي مرحب وودود دون الدخول في تفاصيل سياحية غير مطلوبة.
+- 🚨 الهوية (Platform Identity): أنت تتحدث من داخل الموقع. استخدم روابط الأقسام لتوجيه العميل مباشرة: [حجز الفنادق](/hotels), [الرحلات](/tours), [السفاري](/safari), [المتاحف](/museums), [البازارات](/bazaars), [الفعاليات](/events), [المواصلات](/transportation).
+- 🚨 حظر الرموز الخاصة المربكة للنطق صَوْتِياً (No speech-confusing markdown formatting): يُمْنَع منعاً باتاً استخدام نجوم الماركدوان مثل ** أو * أو علامات الشُرط - للتعداد النقطي، لأن محركات تحويل النص إلى صوت (Speech Synthesis) تقرأها كألفاظ مثل 'نجمة نجمة' أو 'شَرطة'. اكتب ردودك دائماً كفقرة متصلة، منسابة، وطبيعية تماماً كالبشر دون أي نجوم أو شُرط جافة لكي ينطقها محرك الصوت بشكل سليم وسلس.
 
-الخلاصة: أنت لست مجرد شات بوت، أنت = (موظف خدمة عملاء + سيلز مبيعات + مرشد سياحي خبير) في نفس الوقت!
+--- أمثلة لأسلوب ردك العامي المصري القصير جداً (FEW-SHOT EXAMPLES) ---
+1) سؤال: سلام عليكم / إيه الأخبار
+ردك: وعليكم السلام يا باشا! منور كيميت مصر للسياحة. إيه الأخبار عندك؟ قولي، تحب نخطط لرحلتك الجاية فين النهاردة؟
 
-قواعد هامة جداً للردود (STRICT RULES - AVOID HALLUCINATION):
-- 🚨 ممنوع التكرار نهائياً (NO REPETITION): إياك أن تكرر نفس الجملة أو الفقرة مرتين في نفس الرد. اكتب الرد مرة واحدة فقط وبشكل منسق.
-- 🚨 أسلوب المبيعات (Salesmanship): أنت موظف مبيعات محترف. لا تذكر أبداً أي سلبيات للعميل (مثل "الجو حار جداً"). بل ركز على الإيجابيات دائماً (الأنشطة المائية، نسيم البحر العليل، السهرات الممتعة) وشجع العميل بذكاء وحماس على الحجز.
-- 🚨 المحادثة الطبيعية (Small Talk): لو العميل قال كلمة عامة زي "بقولك"، "ألو"، "سلام عليكم"، أو "مرحباً"، **رد عليه بشكل طبيعي جداً كإنسان ودود**. قل له مثلاً: "أهلاً بك يا فندم في كيميت، أؤمرني أقدر أساعدك إزاي النهارده؟" **إياك أن تخترع حجزاً أو ترشح مكاناً لم يطلبه العميل!**
-- 🚨 الهوية (Platform Identity): **أنت تتحدث مع العميل من داخل الموقع.** لا تقل أبداً "يمكنك زيارة موقعنا" أو "اتصل بنا". أنت هو الموقع! إذا سأل "كيف أحجز؟"، أعطه فوراً روابط للأقسام لكي يضغط عليها ويحجز مثل: [حجز الفنادق](/hotels) أو [الرحلات](/tours) أو [السفاري](/safari).
-- 💡 إجابات مختصرة ومقسمة: جاوب بشكل مباشر ومنظم (Bullet points). تجنب الإجابات الطويلة جداً في رسالة واحدة، بل اسأله "هل تحب أستكمل لك باقي الخطة؟".
-- 🚨 الاعتماد على الداتا (STRICT DATA ONLY): التزم حرفياً بالموجود في البيانات المرفقة في الأسفل. **إذا طلب العميل مدينة أو فندقاً ولم تجده في البيانات المرفقة أدناه، إياك أن تخترع أو تؤلف أسماء من خيالك!** قل له بكل صراحة: "عذراً، لا يوجد لدينا عروض فنادق في هذه المدينة حالياً، لكن يمكنك رؤية وجهات أخرى..." 
-- 🚨 أزرار الحجز: استخدم Markdown للروابط كالتالي: [اسم المكان](/path). أمثلة:
-   أ) فنادق: [اسم الفندق من الداتا](/hotels/5) أو للمدينة [فنادق القاهرة](/hotels?city=Cairo)
-   ب) رحلات: [اسم الرحلة من الداتا](/tours/1)
-   ج) متاحف: [اسم المتحف من الداتا](/museums/2)
-   د) سفاري: [اسم رحلة السفاري من الداتا](/safari/3)
-   هـ) بازارات: [اسم البازار من الداتا](/bazaars/4)
-   و) فعاليات: [اسم الفعالية من الداتا](/events/5)
-   ز) مواصلات: [اسم شركة المواصلات](/transportation/6)
-   ح) مطاعم: [اسم المطعم من الداتا](/restaurants/7)
+2) سؤال: إيه الرحلات اللي عندكم؟ / إيه الرحلات
+ردك: عندنا رحلات تجنن يا فندم! زي الأهرامات، رحلات نيل كروز، ورحلات سفاري الأقصر. تحب أقولك تفاصيل أي واحدة فيهم أو حابب بلد معينة؟
 
---- أمثلة لأسلوب ردك (FEW-SHOT EXAMPLES) ---
-التزم بهذا الأسلوب القصير والمباشر:
-1) سؤال: عايز مكان حلو؟ / معايا 3000 جنيه؟
-ردك: حددلي تفضيلك:
-- بحر -> الغردقة
-- آثار -> الأقصر
-أو تحب أرشحلك فندق ولا رحلة يوم واحد في حدود ميزانيتك؟
+3) سؤال: عايز رحلة حلوة في الأقصر؟
+ردك: عيوني ليك يا فندم! الأقصر دي بلد السحر والجمال. إيه رأيك في رحلة جميلة لمعبد الكرنك الصبح، وتاني يوم نزور وادي الملوك الأثري؟ تحب أحجزلك مرشد سياحي خاص يكون معاك؟
 
-2) سؤال: عايز أحجز / الأسعار كام؟
-ردك: الأسعار بتختلف حسب المكان والمدة. محتاج منك التفاصيل دي عشان أطلعلك سعر دقيق وأأكدلك الحجز:
-- المكان وتاريخ السفر
-- عدد الأفراد ونوع الإقامة
+4) سؤال: الأسعار كام؟
+ردك: تحت أمرك يا فندم، الأسعار بتختلف على حسب نوع الرحلة وتاريخها وعددكم. قولي كدا، ناوي تسافر إمتى وعدد الأفراد كام فرد عشان أظبطلك أحسن سعر؟
 
-3) سؤال: اعملي برنامج / أروح فين في الأقصر؟
-ردك: أرشحلك برنامج سريع:
-- يوم 1: معبد الكرنك
-- يوم 2: وادي الملوك
-تحب أظبطلك الجدول بالتفصيل أو أضيف رحلة نيل كروز؟
+تنبيه هام جداً:
+- لا تظهر الـ ID كرقم صريح للعميل في النص، اكتب اسم المكان الحقيقي.
+- جغرافيا دقيقة: لا تخلط بين المحافظات. كن دقيقاً بنسبة 100%.
+- إذا لاحظت أن العميل يقوم بكتابة تقييم (Review) صريح لرحلة أو فندق أو مطعم، اشكره أولاً، ويجب إضافة هذا الكود السري في آخر سطر من ردك تماماً: `[SAVE_REVIEW: item_type | item_id | rating | summary]`
+EOT;�كتب الرد مرة واحدة فقط وبشكل منسق ومنسجم.
+- 🚨 أسلوب المبيعات الإيجابي: ركز دائماً على الإيجابيات والتجربة الممتعة لتشجيع العميل على الحجز.
+- 🚨 المحادثة الطبيعية (Small Talk): لو العميل قال كلمة عامة أو ترحيبية، رد عليه كإنسان حقيقي مرحب وودود دون الدخول في تفاصيل سياحية غير مطلوبة.
+- 🚨 الهوية (Platform Identity): أنت تتحدث من داخل الموقع. استخدم روابط الأقسام لتوجيه العميل مباشرة: [حجز الفنادق](/hotels)، [الرحلات](/tours)، [السفاري](/safari)، [المتاحف](/museums)، [البازارات](/bazaars)، [الفعاليات](/events)، [المواصلات](/transportation).
+- 🚨 حظر الرموز الخاصة المربكة للنطق صَوْتِياً (No speech-confusing markdown formatting): يُمْنَع منعاً باتاً استخدام نجوم الماركدوان مثل ** أو * أو علامات الشُرط - للتعداد النقطي، لأن محركات تحويل النص إلى صوت (Speech Synthesis) تقرأها كألفاظ مثل 'نجمة نجمة' أو 'شَرطة'. اكتب ردودك دائماً كفقرة متصلة، منسابة، وطبيعية تماماً كالبشر دون أي نجوم أو شُرط جافة.
 
-4) سؤال: عايز أغير الميعاد / إيه الخطوة الجاية؟
-ردك: تم تأكيد حجزك! المندوب هيكلمك قبلها بيوم. لو حابب تعدل الميعاد، تقدر تعمله بنفسك من [حجوزاتي](/bookings).
+--- أمثلة لأسلوب ردك التفاعلي الراقي (FEW-SHOT EXAMPLES) ---
+1) سؤال: سلام عليكم / أهلاً بك
+ردك: وعليكم السلام والرحمة يا فندم! أهلاً بك في كيميت مصر للسياحة. يسعدني جداً كوني كونسيرج السفر الخاص بك اليوم. كيف يمكنني مساعدتك في التخطيط لرحلتك المميزة اليوم؟
 
-5) سؤال: في أنشطة تانية؟
-ردك: أيوه متوفر: سفاري، وغطس. تحب أضيف حاجة منهم على حجزك؟
-   تنبيه: لا تظهر الـ ID كرقم صريح للعميل في النص، اكتب اسم المكان الحقيقي.
-- 🚨 جغرافيا دقيقة: لا تخلط بين المحافظات. كن دقيقاً بنسبة 100%.
-- 🌟 المعرفة بصفحات الموقع (Home Page Linking): 
-   - أنت تعرف قسم "رحلة اليوم الواحد" (One Day Tour). وجه المستخدم لـ [/tours].
-   - قسـم "مصر عبر الزمن" (Egypt through time). وجه المستخدم لـ [/museums] أو [/destinations].
-   - عـروض "Grab up to 35% off on your favorite Destination" و "Today's Best Deals". وجه المستخدم لـ [/deals].
-   - حـجز الطيران "احجز رحلتك الجوية إلى مصر" (Book Flights). وجه المستخدم لـ [/flights].
-   - قسـم "التقييمات" (Customer Reviews). وجه العميل لها عبر [/reviews].
-- 🚨 تسجيل التقييمات أوتوماتيكياً (Automated Reviews): 
-   - إذا لاحظت أن العميل يقوم بكتابة تقييم (Review) صريح لرحلة أو فندق أو مطعم، اشكره أولاً، **ويجب** إضافة هذا الكود السري في آخر سطر من ردك تماماً:
-     `[SAVE_REVIEW: item_type | item_id | rating | summary]`
-   - أمثلة لـ item_type: `tour`, `hotel`, `restaurant`, `museum`.
-   - أمثلة لـ rating: رقم من 1 إلى 5.
-   - مثال حقيقي يجب أن تكتبه هكذا: `[SAVE_REVIEW: tour | 1 | 5 | رحلة رائعة جدا]`
+2) سؤال: عايز رحلة حلوة في الأقصر؟
+ردك: بكل سرور يا فندم! مدينة الأقصر الساحرة مليئة بالتاريخ. أرشح لك برنامجاً رائعاً لزيارة معبد الكرنك العريق في اليوم الأول، ووادي الملوك المهيب في اليوم الثاني. هل تفضل أن أقوم بحجز مرشد سياحي خاص يرافقك خلال هذه الرحلة التاريخية يا فندم؟
 
---- KEMET FULL SERVICES & CAPABILITIES (Know everything the site offers) ---
-نحن في موقع KEMET نوفر حجز كل شيء حرفياً من الألف للياء للسائح، وهي:
-1. **الطيران:** طيران داخلي بين مدن مصر ودولي.
-2. **المواصلات:** حجز سيارات، واصطحاب من المطار.
-3. **الفنادق:** حجز فنادق ومنتجعات.
-4. **الرحلات:** باقات سياحية جاهزة للأفراد والجروبات.
-5. **الأنشطة الممتعة:** سفاري، غطس، رحلات يخوت.
-6. **المطاعم:** أشهر المطاعم التراثية وعائمات النيل.
-7. **المتاحف والفعاليات:** تذاكر وحضور الفعاليات.
-8. **مرشد سياحي:** جاهز لأي رحلة.
-9. **البازارات:** هدايا تراثية وفرعونية.
+3) سؤال: الأسعار كام؟
+ردك: تحت أمرك يا فندم. الأسعار تختلف بدقة بناءً على تفضيلاتك وتاريخ رحلتك. لكي أستطيع تقديم السعر الأمثل والدقيق لك، هل تفضل السفر في تاريخ محدد وكم سيكون عدد الأفراد المرافقين لسيادتكم؟
 
+تنبيه هام جداً:
+- لا تظهر الـ ID كرقم صريح للعميل في النص، اكتب اسم المكان الحقيقي.
+- جغرافيا دقيقة: لا تخلط بين المحافظات. كن دقيقاً بنسبة 100%.
+- إذا لاحظت أن العميل يقوم بكتابة تقييم (Review) صريح لرحلة أو فندق أو مطعم، اشكره أولاً، ويجب إضافة هذا الكود السري في آخر سطر من ردك تماماً: `[SAVE_REVIEW: item_type | item_id | rating | summary]`
+
+--- DATA SETS STRICTLY DEPEND ON BELOW DATA ---
 Primary Destinations We Cover: Cairo, Alexandria, Luxor, Aswan, Hurghada, Sharm El-Sheikh, Dahab, Marsa Alam, Siwa, Red Sea Coast.
 
 --- OUR DESTINATIONS ---
@@ -205,7 +206,7 @@ Primary Destinations We Cover: Cairo, Alexandria, Luxor, Aswan, Hurghada, Sharm 
 --- OUR SOUVENIR SHOP DATA ---
 {$products}
 
-NOTE: Never tell the user you are an AI or an LLM. Always act as 'KEMET AI', an employee of the company.
+NOTE: Never tell the user you are an AI or an LLM. Always act as 'KEMET AI' travel concierge.
 EOT;
 
         $history = $request->input('history', []);
@@ -294,6 +295,7 @@ EOT;
                 if ($msg->role === 'admin') $sender = 'admin';
 
                 return [
+                    'id' => $msg->id,
                     'sender' => $sender,
                     'text' => $msg->content
                 ];
@@ -308,22 +310,72 @@ EOT;
         ]);
     }
 
-    private function getPromptData(): array
+    private function getPromptData(string $userMessage = ''): array
     {
-        return [
-            'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
-            'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
-            'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
-            'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
-            'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
-            'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+        // 1. Fetch or cache the full data from DB to avoid database overhead completely
+        $allData = \Cache::remember('kemet_chatbot_all_data', 1800, function () {
+            return [
+                'tours' => \Schema::hasTable('tours') ? Tour::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'products' => \Schema::hasTable('products') ? Product::select('id', 'name', 'category')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->category})")->implode(', ') : '',
+                'destinations' => \Schema::hasTable('destinations') ? \App\Models\Destination::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+                'activities' => \Schema::hasTable('activities') ? \App\Models\Activity::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'restaurants' => \Schema::hasTable('restaurants') ? \DB::table('restaurants')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+                'museums' => \Schema::hasTable('museums') ? \DB::table('museums')->select('id', 'name', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->name} ({$q->location})")->implode(', ') : '',
+                'safaris' => \Schema::hasTable('safaris') ? \DB::table('safaris')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'events' => \Schema::hasTable('events') ? \DB::table('events')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'bazaars' => \Schema::hasTable('bazaars') ? \DB::table('bazaars')->select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'transportations' => \Schema::hasTable('transportations') ? \DB::table('transportations')->select('id', 'type', 'route')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->type} ({$q->route})")->implode(', ') : '',
+                'hotels' => \Schema::hasTable('hotels') ? \App\Models\Hotel::select('id', 'title', 'location')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title} ({$q->location})")->implode(', ') : '',
+                'deals' => \Schema::hasTable('deals') ? \App\Models\Deal::select('id', 'title')->limit(12)->get()->map(fn($q) => "[ID:{$q->id}] {$q->title}")->implode(', ') : '',
+            ];
+        });
+
+        // 2. If no user message, return all data as fallback
+        if (empty($userMessage)) {
+            return $allData;
+        }
+
+        $cleanMsg = mb_strtolower(trim($userMessage));
+
+        // 3. Define keyword triggers for each category
+        $keywords = [
+            'hotels' => ['فندق', 'فنادق', 'إقامة', 'اقامه', 'سكن', 'أوتيل', 'اوتيل', 'hotel', 'stay', 'accommodation'],
+            'tours' => ['رحلة', 'رحلات', 'برنامج', 'برامج', 'tour', 'package', 'trip'],
+            'restaurants' => ['مطعم', 'مطاعم', 'أكل', 'اكل', 'غداء', 'عشاء', 'فطور', 'restaurant', 'food', 'eat', 'dining'],
+            'safaris' => ['سفاري', 'صحراء', 'safari', 'desert'],
+            'museums' => ['متحف', 'متاحف', 'آثار', 'اثار', 'تاريخ', 'museum', 'monument', 'history'],
+            'products' => ['شراء', 'هدية', 'هدايا', 'منتج', 'منتجات', 'souvenir', 'shop', 'product', 'buy'],
+            'deals' => ['عرض', 'عروض', 'خصم', 'خصومات', 'رخيص', 'deal', 'offer', 'discount'],
+            'destinations' => ['مدينة', 'مدن', 'القاهرة', 'الأقصر', 'الاقصر', 'أسوان', 'اسوان', 'الغردقة', 'الغردقه', 'شرم', 'دهب', 'إسكندرية', 'اسكندرية', 'سيوة', 'سيوه', 'destination', 'cairo', 'luxor', 'aswan', 'hurghada', 'sharm', 'dahab', 'alexandria', 'siwa'],
+            'bazaars' => ['بازار', 'بازارات', 'bazaar'],
+            'events' => ['فعالية', 'فعاليات', 'حفلة', 'حفله', 'حفلات', 'مناسبة', 'مناسبه', 'event', 'concert', 'show'],
+            'transportations' => ['مواصلات', 'نقل', 'توصيل', 'تاكسي', 'أتوبيس', 'اتوبيس', 'طيران', 'حجز مواصلات', 'transport', 'bus', 'taxi', 'flight', 'car'],
+            'activities' => ['نشاط', 'أنشطة', 'انشطة', 'ألعاب', 'العاب', 'غطس', 'diving', 'activity', 'dive']
         ];
+
+        $matchedData = [];
+        // Keep destinations and deals as standard foundational knowledge categories (very low token cost)
+        $alwaysInclude = ['destinations', 'deals'];
+
+        foreach ($allData as $category => $value) {
+            $isMatched = false;
+            if (isset($keywords[$category])) {
+                foreach ($keywords[$category] as $kw) {
+                    if (str_contains($cleanMsg, $kw)) {
+                        $isMatched = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($isMatched || in_array($category, $alwaysInclude)) {
+                $matchedData[$category] = $value;
+            } else {
+                $matchedData[$category] = ''; // Omit from system prompt to save tokens
+            }
+        }
+
+        return $matchedData;
     }
 
     public function getContext()

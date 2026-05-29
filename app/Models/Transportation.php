@@ -11,7 +11,8 @@ class Transportation extends Model
 
     protected $fillable = [
         'type', 'route', 'company', 'class', 'price',
-        'duration', 'departure_time', 'image', 'rating'
+        'duration', 'departure_time', 'image', 'rating',
+        'status', 'action_type', 'rejection_reason'
     ];
 
     protected $casts = [

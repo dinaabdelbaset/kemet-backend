@@ -273,19 +273,34 @@ class AdminController extends Controller
         $hotel = Hotel::find($id);
         if (!$hotel) return response()->json(['message' => 'Hotel not found'], 404);
 
-        $data = $request->all();
-        $data = $this->handleImageUpload($request, $data);
-        if (isset($data['name'])) { 
-            $data['title'] = $data['name']; 
-            unset($data['name']); 
+        // Start with only the fields we want to update (whitelist approach)
+        $data = $request->only(['name', 'location', 'price', 'rating', 'description', 'status']);
+
+        // Map name → title
+        if (isset($data['name']) && $data['name'] !== '') {
+            $data['title'] = $data['name'];
         }
-        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
-            $data['price_starts_from'] = $data['price']; 
+        unset($data['name']);
+
+        // Map price → price_starts_from
+        if (isset($data['price']) && $data['price'] !== '') {
+            $data['price_starts_from'] = $data['price'];
         }
+        unset($data['price']);
+
+        // Only upload new image if a file was actually sent
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/uploads'), $filename);
+            $data['image'] = url('/images/uploads/' . $filename);
+        }
+        // else: keep existing hotel->image untouched
 
         $hotel->update($data);
-        return response()->json($hotel);
+        return response()->json($hotel->fresh());
     }
+
 
     public function deleteHotel($id)
     {
@@ -406,12 +421,10 @@ class AdminController extends Controller
     {
         $data = $request->all();
         $data = $this->handleImageUpload($request, $data);
-        if (isset($data['name'])) { 
-            $data['title'] = $data['name']; 
-            unset($data['name']); 
-        }
-        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
-            $data['price_starts_from'] = $data['price']; 
+        // Restaurants use 'name' and 'price_range_min'/'price_range_max'
+        if (isset($data['price'])) {
+            $data['price_range_min'] = $data['price'];
+            $data['price_range_max'] = $data['price'];
         }
         
         $item = \App\Models\Restaurant::create($data);
@@ -425,12 +438,10 @@ class AdminController extends Controller
 
         $data = $request->all();
         $data = $this->handleImageUpload($request, $data);
-        if (isset($data['name'])) { 
-            $data['title'] = $data['name']; 
-            unset($data['name']); 
-        }
-        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
-            $data['price_starts_from'] = $data['price']; 
+        // Restaurants use 'name' and 'price_range_min'/'price_range_max'
+        if (isset($data['price'])) {
+            $data['price_range_min'] = $data['price'];
+            $data['price_range_max'] = $data['price'];
         }
 
         $item->update($data);
@@ -456,12 +467,9 @@ class AdminController extends Controller
     {
         $data = $request->all();
         $data = $this->handleImageUpload($request, $data);
-        if (isset($data['name'])) { 
-            $data['title'] = $data['name']; 
-            unset($data['name']); 
-        }
-        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
-            $data['price_starts_from'] = $data['price']; 
+        // Museums use 'name' and 'ticket_price'
+        if (isset($data['price'])) {
+            $data['ticket_price'] = $data['price'];
         }
         
         $item = \App\Models\Museum::create($data);
@@ -475,12 +483,9 @@ class AdminController extends Controller
 
         $data = $request->all();
         $data = $this->handleImageUpload($request, $data);
-        if (isset($data['name'])) { 
-            $data['title'] = $data['name']; 
-            unset($data['name']); 
-        }
-        if (isset($data['price']) && !isset($data['price_starts_from'])) { 
-            $data['price_starts_from'] = $data['price']; 
+        // Museums use 'name' and 'ticket_price'
+        if (isset($data['price'])) {
+            $data['ticket_price'] = $data['price'];
         }
 
         $item->update($data);

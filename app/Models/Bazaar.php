@@ -9,7 +9,10 @@ class Bazaar extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'location', 'image', 'description', 'specialty'];
+    protected $fillable = [
+        'title', 'location', 'image', 'description', 'specialty',
+        'status', 'action_type', 'rejection_reason'
+    ];
 
     protected $casts = [
         'specialty' => 'array',
