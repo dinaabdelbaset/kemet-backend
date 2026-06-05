@@ -40,10 +40,11 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes (Unprotected for local demo purposes, but normally wrapped in auth:sanctum & admin middleware)
+| Admin Routes (Protected by X-Admin-Key header middleware)
+| The key is defined in .env as ADMIN_SECRET_KEY
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('admin.key')->group(function () {
     Route::get('/stats', [AdminController::class, 'stats']);
     Route::post('/settings', [AdminController::class, 'updateSettings']);
     
@@ -97,6 +98,7 @@ Route::prefix('admin')->group(function () {
     Route::put('/bazaars/{id}', [AdminController::class, 'updateBazaar']);
     Route::delete('/bazaars/{id}', [AdminController::class, 'deleteBazaar']);
 
+
     Route::get('/transportations', [AdminController::class, 'transportations']);
     Route::post('/transportations', [AdminController::class, 'storeTransportation']);
     Route::put('/transportations/{id}', [AdminController::class, 'updateTransportation']);
@@ -120,6 +122,18 @@ Route::prefix('admin')->group(function () {
     // Admin Approvals
     Route::get('/approvals/pending', [AdminApprovalController::class, 'getPendingItems']);
     Route::post('/approvals/{type}/{id}', [AdminApprovalController::class, 'moderateItem']);
+
+    // Admin Orders (E-Commerce & Food Delivery)
+    Route::get('/orders', [AdminController::class, 'orders']);
+    Route::put('/orders/{id}', [AdminController::class, 'updateOrder']);
+    Route::delete('/orders/{id}', [AdminController::class, 'deleteOrder']);
+});
+
+// ===== Utility: Force re-seed bazaars with correct Arabic locations (public, no key needed) =====
+Route::get('/bazaars-reseed', function () {
+    \App\Models\Bazaar::truncate();
+    app(\App\Http\Controllers\BazaarController::class)->index(); // triggers auto-seed
+    return response()->json(['status' => 'Bazaars re-seeded ✅', 'count' => \App\Models\Bazaar::count()]);
 });
 
 Route::get('/home', [HomeController::class, 'index']);
@@ -234,6 +248,9 @@ Route::get('/travelpackages/{id}', [TravelPackageController::class, 'show']);
 
 // ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø¨Ø­Ø« (Global Search) =====
 Route::get('/search', [SearchController::class, 'search']);
+
+// ===== Ù…Ø³Ø§Ø±Ø§Øª Ù…Ø®Ø·Ø· Ø§Ù„Ø±Ø­Ù„Ø§Øª Ø¨Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (AI Trip Planner) =====
+Route::post('/trip-planner/generate', [TripPlannerController::class, 'generateTrip']);
 
 // ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ù…Ø·Ø§Ø¹Ù… (Restaurants) =====
 Route::get('/restaurants', [RestaurantController::class, 'index']);

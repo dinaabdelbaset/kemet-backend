@@ -35,6 +35,16 @@ class TripPlannerController extends Controller
         $currency = $request->input('currency', 'USD');
         $days = $request->input('days');
         
+        // Convert the input budget to EGP because the database prices are in EGP!
+        $rates = [
+            'USD' => 48.5,
+            'EGP' => 1.0,
+            'EUR' => 48.5 / 0.92,
+            'GBP' => 48.5 / 0.79,
+            'SAR' => 48.5 / 3.75,
+        ];
+        $budgetInEgp = $budget * ($rates[$currency] ?? 48.5);
+        
         // Fetch real data to pass to the AI context
         $hotels = Hotel::where('location', 'like', "%{$destination}%")->limit(3)->get(['id', 'title as name', 'price_starts_from as price', 'rating', 'image']);
         if ($hotels->isEmpty()) {
@@ -51,7 +61,7 @@ class TripPlannerController extends Controller
         $dbContext .= "Tours:\n" . json_encode($tours) . "\n";
         $dbContext .= "Transport:\n" . json_encode($transportation) . "\n";
 
-        $prompt = "Create a $days-day trip to $destination for {$request->adults} adults and {$request->children} children. The vibe is '{$request->vibe}'. Total budget: $budget $currency.\n\n";
+        $prompt = "Create a $days-day trip to $destination for {$request->adults} adults and {$request->children} children. The vibe is '{$request->vibe}'. Total budget: $budgetInEgp EGP.\n\n";
         $prompt .= $dbContext . "\n\n";
         $prompt .= "You MUST return ONLY a valid JSON object matching exactly this structure:
 {
@@ -72,10 +82,11 @@ class TripPlannerController extends Controller
 }
 
 CRITICAL RULES:
-1. You MUST pick the 'hotel', 'activities/tours', and 'transport' strictly from the Available Database Data if possible. Use their exact names, prices, and image URLs.
-2. If there are not enough tours/restaurants in the database, invent realistic ones for Egypt, but use this placeholder for their image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400'.
-3. 'totalCost' should be the sum of all activities, hotel nights, and transport. Ensure it doesn't exceed the $budget too much.
-4. ONLY return a raw, valid JSON object.";
+1. You MUST do all price calculations strictly in EGP (Egyptian Pounds). All prices (hotel, activities, transport, totalCost) must be in EGP.
+2. You MUST pick the 'hotel', 'activities/tours', and 'transport' strictly from the Available Database Data if possible. Use their exact names, prices, and image URLs.
+3. If there are not enough tours/restaurants in the database, invent realistic ones for Egypt, but use this placeholder for their image: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=400'.
+4. 'totalCost' should be the sum of all activities, hotel nights, and transport. Ensure it does not exceed the budget of $budgetInEgp EGP.
+5. ONLY return a raw, valid JSON object.";
 
         $response = $this->aiService->ask($prompt, $systemContext);
 
@@ -100,6 +111,25 @@ CRITICAL RULES:
             Log::error("TripPlanner AI JSON Parse Error", ['raw_response' => $response]);
             return response()->json(['error' => 'The AI failed to generate a valid itinerary. Please try again.', 'raw' => $response], 500);
         }
+
+        // Mathematically calculate the correct totalCost to avoid AI math hallucinations
+        $nights = max(1, $days - 1);
+        $hotelPrice = (float)($tripData['hotel']['price'] ?? 0);
+        $hotelCost = $hotelPrice * $nights;
+
+        $activitiesCost = 0;
+        if (isset($tripData['itinerary']) && is_array($tripData['itinerary'])) {
+            foreach ($tripData['itinerary'] as $dayData) {
+                if (isset($dayData['activities']) && is_array($dayData['activities'])) {
+                    foreach ($dayData['activities'] as $activity) {
+                        $activitiesCost += (float)($activity['price'] ?? 0);
+                    }
+                }
+            }
+        }
+
+        $transportCost = (float)($tripData['transport']['price'] ?? 0);
+        $tripData['totalCost'] = $hotelCost + $activitiesCost + $transportCost;
 
         return response()->json($tripData);
     }
