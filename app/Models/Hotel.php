@@ -12,7 +12,7 @@ class Hotel extends Model
     protected $fillable = [
         'title', 'description', 'location', 'address', 'rating', 
         'reviews_count', 'price_starts_from', 'image', 'gallery', 'ar_url',
-        'status', 'action_type', 'rejection_reason'
+        'status', 'action_type', 'rejection_reason', 'arab_country_id'
     ];
 
     protected $casts = [

@@ -10,7 +10,7 @@ class GeminiService
 
     public function __construct()
     {
-        $this->apiKey = env('GEMINI_API_KEY');
+        $this->apiKey = env('GEMINI_API_KEY', '');
     }
 
     /**

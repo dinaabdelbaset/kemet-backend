@@ -21,6 +21,12 @@ class HotelController extends Controller
 
         $query = Hotel::with('rooms')->where('status', 'approved')->orderBy('id', 'desc');
 
+        if ($request->has('arab_country_id') && $request->arab_country_id) {
+            $query->where('arab_country_id', $request->arab_country_id);
+        } else {
+            $query->whereNull('arab_country_id');
+        }
+
         if ($request->has('location') && $request->location) {
             $query->where('location', 'like', '%' . $request->location . '%');
         }

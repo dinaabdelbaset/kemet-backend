@@ -37,10 +37,10 @@ class KemetChatbotController extends Controller
         try {
             // Destinations
             if (Schema::hasTable('destinations')) {
-                $items = DB::table('destinations')->get(['name', 'location']);
+                $items = DB::table('destinations')->get(['title', 'location']);
                 $strs = [];
                 foreach ($items as $item) {
-                    $strs[] = ($item->name ?? '') . ' (' . ($item->location ?? '') . ')';
+                    $strs[] = ($item->title ?? '') . ' (' . ($item->location ?? '') . ')';
                 }
                 $data['destinations'] = implode(', ', $strs);
             }
@@ -233,7 +233,21 @@ class KemetChatbotController extends Controller
         if (!empty($contextData['transportation'])) $liveDataStrs[] = "🚗 TRANSPORTATION OPTIONS (with prices in EGP):\n" . $contextData['transportation'];
         if (!empty($contextData['exchange_rates'])) $liveDataStrs[] = "💱 LIVE EXCHANGE RATES:\n" . $contextData['exchange_rates'];
 
-        $systemContext = $basePrompt;
+        $language = $request->input('language');
+        $languagePrompt = '';
+        if (!empty($language)) {
+            $langMapping = [
+                'ar' => 'Arabic (العربية)',
+                'en' => 'English',
+                'fr' => 'French (Français)',
+                'de' => 'German (Deutsch)',
+                'it' => 'Italian (Italiano)',
+            ];
+            $langName = $langMapping[strtolower($language)] ?? $language;
+            $languagePrompt = "\n\n⚠️ CRITICAL INSTRUCTION: The user has selected their language preference as '{$langName}'. You MUST communicate and reply to them ONLY in '{$langName}'. Translate all tour/hotel/attraction names, descriptions, pricing explanations, booking procedures, and friendly guidance into '{$langName}' naturally and beautifully. Keep pricing in Egyptian Pounds (EGP) but explain it in '{$langName}'.";
+        }
+
+        $systemContext = $basePrompt . $languagePrompt;
         if (count($liveDataStrs) > 0) {
             $systemContext .= "\n\n--- LIVE DATABASE PRICES (use these exact numbers when users ask) ---\n" . implode("\n\n", $liveDataStrs);
         }

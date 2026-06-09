@@ -26,7 +26,9 @@ class DatabaseSeeder extends Seeder
             HomepageSeeder::class,
             HotelSeeder::class,
             NewRestaurantSeeder::class,
+            EmergencyServiceSeeder::class,
+            HajjUmrahSeeder::class,
+            ArabWorldSeeder::class,
         ]);
     }
-}
 }

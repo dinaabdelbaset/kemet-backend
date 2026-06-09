@@ -33,6 +33,8 @@ use App\Http\Controllers\BazaarController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminApprovalController;
+use App\Http\Controllers\EmergencyServiceController;
+use App\Http\Controllers\ArabWorldController;
 
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['message' => 'CSRF cookie set']);
@@ -127,7 +129,29 @@ Route::prefix('admin')->middleware('admin.key')->group(function () {
     Route::get('/orders', [AdminController::class, 'orders']);
     Route::put('/orders/{id}', [AdminController::class, 'updateOrder']);
     Route::delete('/orders/{id}', [AdminController::class, 'deleteOrder']);
+
+    // Admin Emergency Services
+    Route::get('/emergency-services', [EmergencyServiceController::class, 'index']);
+    Route::post('/emergency-services', [EmergencyServiceController::class, 'store']);
+    Route::put('/emergency-services/{id}', [EmergencyServiceController::class, 'update']);
+    Route::delete('/emergency-services/{id}', [EmergencyServiceController::class, 'destroy']);
+
+    // Admin Arab World Tourism
+    Route::post('/arab-world/countries', [ArabWorldController::class, 'storeCountry']);
+    Route::put('/arab-world/countries/{id}', [ArabWorldController::class, 'updateCountry']);
+    Route::delete('/arab-world/countries/{id}', [ArabWorldController::class, 'destroyCountry']);
+    Route::post('/arab-world/landmarks', [ArabWorldController::class, 'storeLandmark']);
+    Route::put('/arab-world/landmarks/{id}', [ArabWorldController::class, 'updateLandmark']);
+    Route::delete('/arab-world/landmarks/{id}', [ArabWorldController::class, 'destroyLandmark']);
+
+    // Admin Hajj & Umrah Packages
+    Route::post('/hajj-umrah/packages', [\App\Http\Controllers\HajjUmrahController::class, 'storePackage']);
+    Route::put('/hajj-umrah/packages/{id}', [\App\Http\Controllers\HajjUmrahController::class, 'updatePackage']);
+    Route::delete('/hajj-umrah/packages/{id}', [\App\Http\Controllers\HajjUmrahController::class, 'destroyPackage']);
 });
+
+// ===== Utility: Force re-seed Hajj & Umrah packages (public, no key needed) =====
+Route::get('/hajj-umrah-reseed', [\App\Http\Controllers\HajjUmrahController::class, 'reseed']);
 
 // ===== Utility: Force re-seed bazaars with correct Arabic locations (public, no key needed) =====
 Route::get('/bazaars-reseed', function () {
@@ -776,6 +800,19 @@ Route::get('/restaurants-reseed', function () {
     return response()->json(['status' => 'Restaurants re-seeded ✅', 'count' => \App\Models\Restaurant::count()]);
 });
 
+Route::get('/emergency-services', [EmergencyServiceController::class, 'index']);
+Route::get('/emergency-services-reseed', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate');
+        \App\Models\EmergencyService::truncate();
+        $seeder = new \Database\Seeders\EmergencyServiceSeeder();
+        $seeder->run();
+        return response()->json(['status' => 'Migrations run & Emergency services re-seeded ✅', 'count' => \App\Models\EmergencyService::count()]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 Route::get('/home', [HomeController::class, 'index']);
 
 // Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„ÙÙ†Ø§Ø¯Ù‚
@@ -928,11 +965,20 @@ Route::get('/content/attractions/{slug}', [AttractionController::class, 'show'])
 Route::get('/content/home-marquee', [ContentController::class, 'getHomeMarquee']);
 Route::get('/content/activity-filters', [ContentController::class, 'getActivityFilters']);
 
-// ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø¯Ø¹Ù… ÙˆØ§Ù„ØªÙˆØ§ØµÙ„ (Support & Newsletter) =====
+// ===== Arab World Tourism Routes =====
+Route::get('/arab-world/countries', [ArabWorldController::class, 'getCountries']);
+Route::get('/arab-world/landmarks', [ArabWorldController::class, 'getLandmarks']);
+Route::get('/arab-world-reseed', [ArabWorldController::class, 'reseed']);
+
+// ===== Hajj & Umrah Routes =====
+Route::get('/hajj-umrah/packages', [\App\Http\Controllers\HajjUmrahController::class, 'getPackages']);
+Route::get('/hajj-umrah-reseed', [\App\Http\Controllers\HajjUmrahController::class, 'reseed']);
+
+// ===== مسارات الدعم والتواصل (Support & Newsletter) =====
 Route::post('/support/contact', [SupportController::class, 'contact']);
 Route::post('/newsletter/subscribe', [SupportController::class, 'subscribe']);
 
-// ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø¯ÙØ¹ (Payments) =====
+// ===== Ù…Ø³Ø§Ø±Ø§Øª Ø§Ù„Ø¯Ù Ø¹ (Payments) =====
 Route::post('/payment/process', [PaymentController::class, 'process']);
 Route::get('/payment/status/{transactionId}', [PaymentController::class, 'status']);
 

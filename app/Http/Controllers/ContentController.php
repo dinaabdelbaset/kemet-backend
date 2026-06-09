@@ -42,6 +42,8 @@ class ContentController extends Controller
     {
         return response()->json([
             ['name' => 'Homepage', 'link' => '/'],
+            ['name' => 'Arab Wonders 🗺️', 'link' => '/arab-tourism'],
+            ['name' => 'Hajj & Umrah 🕋', 'link' => '/hajj-umrah'],
             ['name' => 'Souvenir Shop 🛍️', 'link' => '/shop'],
             ['name' => 'AI Planner ✨', 'link' => '/ai-planner'],
             ['name' => 'Activities', 'link' => '/activities'],
@@ -55,6 +57,7 @@ class ContentController extends Controller
                     ['name' => 'Safari', 'link' => '/safari'],
                     ['name' => 'Museums', 'link' => '/museums'],
                     ['name' => 'Bazaars', 'link' => '/bazaars'],
+                    ['name' => 'Emergency Help 🚨', 'link' => '/emergency'],
                 ],
             ],
             ['name' => 'Support', 'link' => '/support'],

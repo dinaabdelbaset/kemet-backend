@@ -13,7 +13,7 @@ class Restaurant extends Model
         'name', 'cuisine', 'location', 'address', 'description',
         'image', 'gallery', 'price_range_min', 'price_range_max',
         'rating', 'reviews_count', 'opening_hours', 'features',
-        'status', 'action_type', 'rejection_reason'
+        'status', 'action_type', 'rejection_reason', 'arab_country_id'
     ];
 
     protected $casts = [

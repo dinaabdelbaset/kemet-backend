@@ -34,6 +34,7 @@ class BookingController extends Controller
                 else if (str_contains($booking->item_type, 'museum')) $link = '/museums';
                 else if (str_contains($booking->item_type, 'restaurant') || str_contains($booking->item_type, 'meal')) $link = '/restaurants';
                 else if (str_contains($booking->item_type, 'attraction')) $link = '/explore/egypt';
+                else if (str_contains($booking->item_type, 'arab_landmark') || str_contains($booking->item_type, 'landmark')) $link = '/arab-world/tourism';
             } else if ($booking->item_type == 'tour' || $booking->item_type == 'package') {
                 $item = Tour::find($booking->item_id);
                 if ($item) {
@@ -78,6 +79,10 @@ class BookingController extends Controller
                 $title = '🎟️ تذكرة عبور لمعلم سياحي (Attraction)';
                 $image = 'https://images.unsplash.com/photo-1539650116574-8efeb43e2b50?q=80&w=600';
                 $link = '/explore/egypt';
+            } else if ($booking->item_type == 'arab_landmark' || $booking->item_type == 'landmark') {
+                $title = '🎟️ تذكرة دخول: ' . ($booking->item_title ?: 'معلم سياحي');
+                $image = $booking->item_image ?: 'https://images.unsplash.com/photo-1539650116574-8efeb43e2b50?q=80&w=600';
+                $link = '/arab-world/tourism';
             } else {
                 $item = Destination::find($booking->item_id);
                 if ($item) {
